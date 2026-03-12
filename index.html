@@ -80,13 +80,21 @@
             border: 1px solid #334155;
         }
 
+        /* OPDATERET EXPLAINER BOKS */
         .formula-box {
-            background: rgba(0, 0, 0, 0.2);
-            border-left: 4px solid var(--accent);
-            padding: 15px;
+            background: rgba(56, 189, 248, 0.08);
+            border-left: 4px solid var(--primary);
+            padding: 20px;
             margin: 15px 0;
-            font-family: 'Times New Roman', serif;
-            font-style: italic;
+            border-radius: 0 8px 8px 0;
+            font-size: 0.95rem;
+            color: var(--text);
+        }
+
+        .formula-box b {
+            color: var(--primary);
+            font-family: monospace;
+            font-size: 1.1rem;
         }
 
         h2 { display: flex; align-items: center; gap: 12px; margin-top: 0; }
@@ -134,7 +142,7 @@
     <div id="rsaContent" class="tab-content active">
         <section>
             <h2 style="color: var(--primary)">Trin 1: Nøglegenerering</h2>
-            <p>RSA starter med at vælge to hemmelige primtal $p$ og $q$. Herfra skabes nøgleparret.</p>
+            <p>RSA starter med at vælge to hemmelige primtal p og q. Herfra skabes nøgleparret.</p>
             <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px;">
                 <input type="number" id="pIn" value="61">
                 <input type="number" id="qIn" value="53">
@@ -142,10 +150,11 @@
             <button class="btn-rsa" onclick="rsaStep1()">Beregn Nøgler</button>
             <div id="rsaOut1" class="hidden">
                 <div class="formula-box">
-                    1. Modulus: $n = p \cdot q$<br>
-                    2. Totient: $\phi(n) = (p-1) \cdot (q-1)$<br>
-                    3. Offentlig eksponent: $e = 65537$ (valgt standard)<br>
-                    4. Privat nøgle: $d$ findes så $(d \cdot e) \equiv 1 \pmod{\phi(n)}$
+                    <strong>Matematikken bag:</strong><br>
+                    1. Modulus: <b>n = p * q</b><br>
+                    2. Totient: <b>phi(n) = (p-1) * (q-1)</b><br>
+                    3. Offentlig eksponent: <b>e = 65537</b><br>
+                    4. Privat nøgle: <b>d</b> findes så <b>(d * e) mod phi(n) = 1</b>
                 </div>
                 <div class="code-box" id="rsaKeys"></div>
             </div>
@@ -153,13 +162,14 @@
 
         <section id="rsaStep2" class="hidden">
             <h2 style="color: var(--primary)">Trin 2: Kryptering (Alice)</h2>
-            <p>For at sende en besked $M$, bruger afsenderen din offentlige nøgle $(n, e)$.</p>
+            <p>For at sende en besked M, bruger afsenderen din offentlige nøgle (n, e).</p>
             <input type="text" id="rsaMsg" placeholder="Skriv din tekst her...">
             <button class="btn-rsa" onclick="rsaStep2()">Udfør Kryptering</button>
             <div id="rsaOut2" class="hidden">
                 <div class="formula-box">
-                    Formel: $C = M^e \pmod{n}$<br>
-                    Hvert bogstav omregnes til ASCII og "låses" med din offentlige eksponent $e$.
+                    <strong>Formel:</strong><br>
+                    <b>C = M^e mod n</b><br><br>
+                    Hvert bogstav omregnes til et tal (ASCII) og "låses" med din offentlige eksponent e.
                 </div>
                 <div class="code-box" id="rsaCipher"></div>
             </div>
@@ -167,12 +177,13 @@
 
         <section id="rsaStep3" class="hidden">
             <h2 style="color: var(--primary)">Trin 3: Dekryptering (Bob)</h2>
-            <p>Kun ejeren af den private nøgle $d$ kan låse tallene op igen.</p>
+            <p>Kun ejeren af den private nøgle d kan låse tallene op igen.</p>
             <button class="btn-rsa" onclick="rsaStep3()">Udfør Dekryptering</button>
             <div id="rsaOut3" class="hidden">
                 <div class="formula-box">
-                    Formel: $M = C^d \pmod{n}$<br>
-                    Matematisk ophæver $d$ effekten af $e$ takket være Eulers sætning.
+                    <strong>Formel:</strong><br>
+                    <b>M = C^d mod n</b><br><br>
+                    Matematisk ophæver d effekten af e, så vi får den originale tekst tilbage.
                 </div>
                 <div class="code-box" id="rsaPlain" style="color: white; font-size: 1.2rem;"></div>
             </div>
@@ -184,20 +195,20 @@
             <h2 style="color: var(--theory)">Asymmetrisk (RSA) Teori</h2>
             <div class="theory-card">
                 <strong>Hvordan virker det?</strong><br>
-                RSA er baseret på <i>faktoreringsproblemet</i>. Det er nemt at gange to store primtal, men ekstremt svært at finde primtallene ud fra resultatet.
+                RSA er baseret på faktoreringsproblemet. Det er nemt at gange to store primtal, men ekstremt svært for en computer at finde de oprindelige primtal ud fra resultatet (n).
                 <ul>
-                    <li><b>Offentlig nøgle:</b> Envejs-låsen. Alle kan låse, ingen kan låse op.</li>
-                    <li><b>Privat nøgle:</b> Den eneste nøgle i universet der passer i låsen.</li>
+                    <li><b>Offentlig nøgle:</b> Fungerer som en åben postkasse. Alle kan lægge noget i, men ingen kan tage det ud.</li>
+                    <li><b>Privat nøgle:</b> Den eneste nøgle i universet, der kan åbne postkassen.</li>
                 </ul>
             </div>
             
             <h2 style="color: var(--caesar)">Symmetrisk (Caesar) Teori</h2>
             <div class="theory-card">
                 <strong>Hvordan virker det?</strong><br>
-                Her bruges den samme nøgle (forskydning) til både kryptering og dekryptering.
+                Her bruges den samme nøgle (forskydning) til både at låse og låse op.
                 <ul>
-                    <li><b>Fordel:</b> Lynhurtigt og kræver minimal regnekraft.</li>
-                    <li><b>Udfordring:</b> Hvordan sender du nøglen til din modtager uden at hackeren ser den? (Dette kaldes Nøgleudvekslingsproblemet).</li>
+                    <li><b>Fordel:</b> Det er lynhurtigt og kræver næsten ingen regnekraft.</li>
+                    <li><b>Udfordring:</b> Det store problem er nøgleudveksling. Hvordan giver du nøglen til din modtager, uden at en hacker ser den på vejen?</li>
                 </ul>
             </div>
         </section>
@@ -206,7 +217,7 @@
     <div id="caesarContent" class="tab-content">
         <section>
             <h2 style="color: var(--caesar)">Symmetrisk Trin-for-trin</h2>
-            <input type="text" id="cInput" placeholder="Tekst...">
+            <input type="text" id="cInput" placeholder="Skriv din besked...">
             <input type="number" id="cKey" value="3" style="margin-top: 10px;">
             <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-top: 10px;">
                 <button class="btn-caesar" onclick="doCaesar(true)">Krypter</button>
@@ -219,7 +230,7 @@
         </section>
     </div>
 
-    <footer>&copy; 2026 Rasmus - SRP Projekt</footer>
+    <footer>&copy; 2026 Rasmus - SRP Projekt om Kryptografi</footer>
 </div>
 
 <script>
@@ -254,13 +265,13 @@
     function rsaStep1() {
         let pV = BigInt(document.getElementById('pIn').value);
         let qV = BigInt(document.getElementById('qIn').value);
-        if (!isPrime(Number(pV)) || !isPrime(Number(qV))) { alert("Brug primtal!"); return; }
+        if (!isPrime(Number(pV)) || !isPrime(Number(qV))) { alert("Husk at bruge to primtal!"); return; }
         n = pV * qV;
         let phi = (pV-1n)*(qV-1n);
         e = 65537n;
         if (gcd(e, phi) !== 1n) e = 3n;
         d = modInverse(e, phi);
-        document.getElementById('rsaKeys').innerHTML = `n: ${n} (Offentlig)<br>e: ${e} (Offentlig)<br>d: ${d} (Privat)`;
+        document.getElementById('rsaKeys').innerHTML = `Modulus (n): ${n}<br>Eksponent (e): ${e}<br>Privat Nøgle (d): ${d}`;
         document.getElementById('rsaOut1').classList.remove('hidden');
         document.getElementById('rsaStep2').classList.remove('hidden');
     }
@@ -293,8 +304,8 @@
         }).join("");
         
         document.getElementById('cFormula').innerHTML = enc 
-            ? `Kryptering: $f(p) = (p + ${k}) \pmod{26}$` 
-            : `Dekryptering: $f(c) = (c - ${k}) \pmod{26}$`;
+            ? `<strong>Kryptering:</strong><br>Besked rykket <b>${k}</b> pladser frem i alfabetet.` 
+            : `<strong>Dekryptering:</strong><br>Besked rykket <b>${k}</b> pladser tilbage.`;
         document.getElementById('cOut').classList.remove('hidden');
     }
 </script>
