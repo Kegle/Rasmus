@@ -1,0 +1,272 @@
+<!DOCTYPE html>
+<html lang="da">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Rasmus' SRP - RSA Kryptering</title>
+    <style>
+        :root {
+            --primary: #2563eb;
+            --secondary: #10b981;
+            --accent: #6366f1;
+            --danger: #ef4444;
+            --bg: #f8fafc;
+            --card: #ffffff;
+            --text: #1e293b;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: var(--bg);
+            color: var(--text);
+            line-height: 1.6;
+            margin: 0;
+            padding: 0;
+        }
+
+        .container {
+            max-width: 900px;
+            margin: 40px auto;
+            padding: 0 20px;
+        }
+
+        header {
+            text-align: center;
+            padding: 50px 20px;
+            background: linear-gradient(135deg, #1e293b, #2563eb);
+            color: white;
+            border-radius: 16px;
+            margin-bottom: 30px;
+            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+        }
+
+        section {
+            background: var(--card);
+            padding: 30px;
+            border-radius: 16px;
+            margin-bottom: 25px;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05);
+            border: 1px solid #e2e8f0;
+        }
+
+        h2 { color: var(--primary); margin-top: 0; display: flex; align-items: center; gap: 10px; }
+        
+        .step-badge {
+            background: var(--primary);
+            color: white;
+            width: 28px;
+            height: 28px;
+            border-radius: 50%;
+            display: inline-flex;
+            justify-content: center;
+            align-items: center;
+            font-size: 14px;
+        }
+
+        .input-group { margin-bottom: 20px; }
+        label { display: block; font-weight: 600; margin-bottom: 8px; }
+        
+        input {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid #e2e8f0;
+            border-radius: 8px;
+            box-sizing: border-box;
+            font-size: 16px;
+        }
+
+        button {
+            background: var(--primary);
+            color: white;
+            border: none;
+            padding: 14px 24px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 16px;
+            font-weight: 600;
+            width: 100%;
+            transition: opacity 0.2s;
+        }
+
+        button:hover { opacity: 0.9; }
+
+        .explanation-box {
+            background: #f1f5f9;
+            border-left: 4px solid var(--secondary);
+            padding: 20px;
+            margin-top: 20px;
+            border-radius: 4px;
+        }
+
+        .result-display {
+            background: #1e293b;
+            color: #62efab;
+            padding: 15px;
+            border-radius: 8px;
+            font-family: 'Courier New', monospace;
+            word-break: break-all;
+            margin-top: 10px;
+        }
+
+        .hidden { display: none; }
+        .math-symbol { font-style: italic; color: var(--accent); font-weight: bold; }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <header>
+        <h1>Rasmus' SRP om Cybersikkerhed</h1>
+        <p>En interaktiv demonstration af RSA-algoritmen</p>
+    </header>
+
+    <section>
+        <h2><span class="step-badge">1</span> Vælg to primtal</h2>
+        <p>RSA-sikkerhed hviler på, at det er svært at faktorisere store tal. Start med at vælge to primtal <span class="math-symbol">p</span> og <span class="math-symbol">q</span>.</p>
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px;">
+            <div class="input-group">
+                <label>Primtal p:</label>
+                <input type="number" id="pInput" value="61">
+            </div>
+            <div class="input-group">
+                <label>Primtal q:</label>
+                <input type="number" id="qInput" value="53">
+            </div>
+        </div>
+        <button onclick="generateKeys()">Generer nøgler</button>
+
+        <div id="keyExplainer" class="hidden">
+            <div class="explanation-box">
+                <strong>Matematikken bag:</strong><br>
+                1. Modulus <span class="math-symbol">n</span> = p * q = <span id="mathN"></span>.<br>
+                2. Eulers totient <span class="math-symbol">φ(n)</span> = (p-1)*(q-1) = <span id="mathPhi"></span>.<br>
+                3. Vi vælger <span class="math-symbol">e</span> = 65537 (offentlig eksponent).<br>
+                4. Vi beregner den private nøgle <span class="math-symbol">d</span>, så (d * e) mod φ(n) = 1.
+            </div>
+            <div style="margin-top:20px; display: grid; grid-template-columns: 1fr 1fr; gap: 20px;">
+                <div>
+                    <label>Offentlig nøgle (n, e):</label>
+                    <div class="result-display" id="pubKey"></div>
+                </div>
+                <div>
+                    <label>Privat nøgle (d):</label>
+                    <div class="result-display" id="privKey"></div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section id="encryptSection" class="hidden">
+        <h2><span class="step-badge">2</span> Kryptering</h2>
+        <p>Nu lader vi en "afsender" skrive en besked. Hvert bogstav omdannes til tal via ASCII-tabellen.</p>
+        <div class="input-group">
+            <label>Besked der skal krypteres:</label>
+            <input type="text" id="msgInput" placeholder="Skriv f.eks. Hej">
+        </div>
+        <button onclick="encrypt()" style="background: var(--accent);">Krypter besked</button>
+        
+        <div id="encryptResult" class="hidden">
+            <p>Formel brugt: <span class="math-symbol">C = M<sup>e</sup> mod n</span></p>
+            <div class="result-display" id="cipherOutput"></div>
+        </div>
+    </section>
+
+    <section id="decryptSection" class="hidden">
+        <h2><span class="step-badge">3</span> Dekryptering</h2>
+        <p>Modtageren bruger nu sin hemmelige private nøgle <span class="math-symbol">d</span> til at få den oprindelige besked tilbage.</p>
+        <button onclick="decrypt()" style="background: var(--secondary);">Dekrypter med privat nøgle</button>
+        
+        <div id="decryptResult" class="hidden">
+            <p>Formel brugt: <span class="math-symbol">M = C<sup>d</sup> mod n</span></p>
+            <div class="result-display" id="plainOutput" style="color: white; font-size: 1.2rem; font-weight: bold;"></div>
+        </div>
+    </section>
+</div>
+
+<script>
+    let n, e, d, encryptedValues = [];
+
+    function isPrime(num) {
+        for(let i = 2, s = Math.sqrt(num); i <= s; i++)
+            if(num % i === 0) return false; 
+        return num > 1;
+    }
+
+    function gcd(a, b) { return b ? gcd(b, a % b) : a; }
+
+    function modInverse(e, phi) {
+        let m0 = phi, t, q;
+        let x0 = 0n, x1 = 1n;
+        if (phi === 1n) return 0n;
+        while (e > 1n) {
+            q = e / phi;
+            t = phi;
+            phi = e % phi;
+            e = t;
+            t = x0;
+            x0 = x1 - q * x0;
+            x1 = t;
+        }
+        if (x1 < 0n) x1 += m0;
+        return x1;
+    }
+
+    function powerMod(base, exp, mod) {
+        let res = 1n;
+        base = base % mod;
+        while (exp > 0n) {
+            if (exp % 2n === 1n) res = (res * base) % mod;
+            base = (base * base) % mod;
+            exp = exp / 2n;
+        }
+        return res;
+    }
+
+    function generateKeys() {
+        const p = BigInt(document.getElementById('pInput').value);
+        const q = BigInt(document.getElementById('qInput').value);
+
+        if (!isPrime(Number(p)) || !isPrime(Number(q))) {
+            alert("Vælg venligst to primtal!"); return;
+        }
+
+        n = p * q;
+        let phi = (p - 1n) * (q - 1n);
+        e = 65537n;
+        if (gcd(Number(e), Number(phi)) !== 1) e = 3n;
+        d = modInverse(e, phi);
+
+        document.getElementById('mathN').innerText = n;
+        document.getElementById('mathPhi').innerText = phi;
+        document.getElementById('pubKey').innerText = `(${n}, ${e})`;
+        document.getElementById('privKey').innerText = d;
+        
+        document.getElementById('keyExplainer').classList.remove('hidden');
+        document.getElementById('encryptSection').classList.remove('hidden');
+    }
+
+    function encrypt() {
+        const text = document.getElementById('msgInput').value;
+        encryptedValues = [];
+        for (let i = 0; i < text.length; i++) {
+            let m = BigInt(text.charCodeAt(i));
+            encryptedValues.push(powerMod(m, e, n));
+        }
+        document.getElementById('cipherOutput').innerText = encryptedValues.join(", ");
+        document.getElementById('encryptResult').classList.remove('hidden');
+        document.getElementById('decryptSection').classList.remove('hidden');
+    }
+
+    function decrypt() {
+        let decryptedText = "";
+        for (let c of encryptedValues) {
+            let m = powerMod(c, d, n);
+            decryptedText += String.fromCharCode(Number(m));
+        }
+        document.getElementById('plainOutput').innerText = "Dekrypteret besked: " + decryptedText;
+        document.getElementById('decryptResult').classList.remove('hidden');
+    }
+</script>
+
+</body>
+</html>
