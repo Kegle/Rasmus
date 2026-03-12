@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Rasmus' SRP - Den Interaktive RSA Guide</title>
+    <title>Rasmus' SRP - Kryptografi</title>
     <style>
         :root {
             --bg: #0f172a;
@@ -11,6 +11,7 @@
             --primary: #38bdf8;
             --secondary: #818cf8;
             --accent: #2dd4bf;
+            --caesar: #f43f5e;
             --text: #f1f5f9;
             --text-dim: #94a3b8;
         }
@@ -26,53 +27,90 @@
 
         .container {
             max-width: 850px;
-            margin: 50px auto;
+            margin: 40px auto;
             padding: 0 20px;
         }
 
         header {
             text-align: center;
-            padding: 60px 20px;
+            padding: 40px 20px;
             background: linear-gradient(135deg, #1e293b 0%, #0f172a 100%);
             border-bottom: 2px solid var(--primary);
             border-radius: 20px;
-            margin-bottom: 40px;
+            margin-bottom: 30px;
         }
 
-        h1 { font-size: 2.5rem; margin: 0; color: var(--primary); }
-        .subtitle { color: var(--text-dim); font-size: 1.1rem; margin-top: 10px; }
+        h1 { font-size: 2.2rem; margin: 0; color: var(--primary); }
+        .subtitle { color: var(--text-dim); font-size: 1rem; margin-top: 10px; }
+
+        /* TABS CSS */
+        .tab-container {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+
+        .tab-btn {
+            flex: 1;
+            padding: 15px;
+            background: var(--card-bg);
+            color: var(--text-dim);
+            border: 2px solid transparent;
+            border-bottom: 2px solid #334155;
+            border-radius: 10px 10px 0 0;
+            font-size: 1.1rem;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .tab-btn.active-rsa {
+            color: var(--primary);
+            border-color: var(--primary);
+            border-bottom: 2px solid var(--bg);
+            background: rgba(56, 189, 248, 0.1);
+        }
+
+        .tab-btn.active-caesar {
+            color: var(--caesar);
+            border-color: var(--caesar);
+            border-bottom: 2px solid var(--bg);
+            background: rgba(244, 63, 94, 0.1);
+        }
+
+        .tab-content { display: none; }
+        .tab-content.active { display: block; animation: fadeIn 0.4s ease-in-out; }
+
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
 
         section {
             background: var(--card-bg);
-            padding: 35px;
-            border-radius: 20px;
-            margin-bottom: 30px;
+            padding: 30px;
+            border-radius: 15px;
+            margin-bottom: 25px;
             border: 1px solid #334155;
-            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.3);
-            transition: all 0.3s ease;
+            box-shadow: 0 8px 15px -3px rgba(0, 0, 0, 0.3);
         }
 
-        h2 { 
-            color: var(--accent); 
-            display: flex; 
-            align-items: center; 
-            gap: 15px;
-            margin-top: 0;
-        }
+        h2 { display: flex; align-items: center; gap: 15px; margin-top: 0; }
+        .rsa-color { color: var(--accent); }
+        .caesar-color { color: var(--caesar); }
 
         .step-circle {
             background: var(--primary);
             color: var(--bg);
-            width: 35px;
-            height: 35px;
+            width: 30px;
+            height: 30px;
             border-radius: 50%;
             display: flex;
             justify-content: center;
             align-items: center;
             font-weight: bold;
         }
+        
+        .step-circle.c-circle { background: var(--caesar); color: white; }
 
-        .input-group { margin: 20px 0; }
+        .input-group { margin: 15px 0; }
         label { display: block; margin-bottom: 8px; font-weight: 500; color: var(--text-dim); }
         
         input {
@@ -80,164 +118,199 @@
             padding: 12px;
             background: #0f172a;
             border: 1px solid #334155;
-            border-radius: 10px;
+            border-radius: 8px;
             color: white;
             font-size: 16px;
             box-sizing: border-box;
         }
 
         button {
-            background: linear-gradient(to right, var(--primary), var(--secondary));
             color: white;
             border: none;
-            padding: 15px 30px;
-            border-radius: 10px;
+            padding: 14px 24px;
+            border-radius: 8px;
             font-weight: 600;
             cursor: pointer;
             width: 100%;
             margin-top: 10px;
-            transition: transform 0.2s;
+            transition: transform 0.2s, filter 0.2s;
         }
 
-        button:hover { transform: translateY(-2px); opacity: 0.9; }
+        .btn-rsa { background: linear-gradient(to right, var(--primary), var(--secondary)); }
+        .btn-caesar { background: linear-gradient(to right, #e11d48, #f43f5e); }
+        button:hover { transform: translateY(-2px); filter: brightness(1.1); }
 
         .explainer {
-            background: rgba(56, 189, 248, 0.1);
+            background: rgba(255, 255, 255, 0.05);
             border-left: 4px solid var(--primary);
-            padding: 20px;
-            margin: 20px 0;
-            border-radius: 0 10px 10px 0;
+            padding: 15px;
+            margin: 15px 0;
+            border-radius: 0 8px 8px 0;
+            font-size: 0.95rem;
         }
+
+        .explainer.caesar-exp { border-left-color: var(--caesar); }
 
         .code-box {
             background: #000;
             padding: 15px;
             border-radius: 8px;
-            font-family: 'Fira Code', monospace;
+            font-family: 'Courier New', monospace;
             color: #10b981;
-            overflow-x: auto;
-            margin: 10px 0;
+            word-break: break-all;
         }
 
         .hidden { display: none; }
-        .conclusion { border-color: var(--accent); background: rgba(45, 212, 191, 0.05); }
-
-        footer { text-align: center; color: var(--text-dim); margin-top: 50px; font-size: 0.9rem; }
+        footer { text-align: center; color: var(--text-dim); margin-top: 40px; padding-bottom: 20px; font-size: 0.9rem; }
     </style>
 </head>
 <body>
 
 <div class="container">
     <header>
-        <h1>Cybersikkerhed & RSA</h1>
-        <p class="subtitle">En interaktiv SRP-præsentation af Rasmus</p>
+        <h1>Cybersikkerhed & Kryptografi</h1>
+        <p class="subtitle">Rasmus' Interaktive SRP-værktøj</p>
     </header>
 
-    <section id="step1">
-        <h2><div class="step-circle">1</div> Nøglegenerering</h2>
-        <p>Alt i RSA starter med to store primtal. Computere bruger normalt tal med over 600 cifre, men her vælger vi nogle små for at forstå logikken.</p>
+    <div class="tab-container">
+        <button id="btnRsa" class="tab-btn active-rsa" onclick="switchTab('rsa')">Asymmetrisk (RSA)</button>
+        <button id="btnCaesar" class="tab-btn" onclick="switchTab('caesar')">Symmetrisk (Caesar)</button>
+    </div>
+
+    <div id="rsaTab" class="tab-content active">
         
-        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px;">
+        <section>
+            <h2 class="rsa-color"><div class="step-circle">1</div> Nøglegenerering</h2>
+            <p>Vælg to primtal. For at kunne kryptere alle bogstaver (op til ASCII 255), skal p * q være mindst 256.</p>
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px;">
+                <div class="input-group">
+                    <label>Primtal p (f.eks. 61):</label>
+                    <input type="number" id="pInput" value="61">
+                </div>
+                <div class="input-group">
+                    <label>Primtal q (f.eks. 53):</label>
+                    <input type="number" id="qInput" value="53">
+                </div>
+            </div>
+            <button class="btn-rsa" onclick="runRsaStep1()">Beregn Nøgler</button>
+
+            <div id="rsaOut1" class="hidden">
+                <div class="explainer">
+                    <strong>Matematikken:</strong><br>
+                    Modulus <span style="color:var(--primary)">n = p * q</span>.<br>
+                    Eulers Totient <span style="color:var(--primary)">φ(n) = (p-1)*(q-1)</span>.
+                </div>
+                <div class="code-box" id="rsaKeyDisplay"></div>
+            </div>
+        </section>
+
+        <section id="rsaStep2" class="hidden">
+            <h2 class="rsa-color"><div class="step-circle">2</div> Kryptering</h2>
             <div class="input-group">
-                <label>Vælg Primtal p:</label>
-                <input type="number" id="pInput" value="61">
+                <label>Hemmelig besked:</label>
+                <input type="text" id="rsaMsgInput" placeholder="Skriv din tekst her...">
+            </div>
+            <button class="btn-rsa" onclick="runRsaStep2()">Krypter med Offentlig Nøgle (e)</button>
+
+            <div id="rsaOut2" class="hidden">
+                <div class="explainer">Formel: <span style="color:var(--primary)">C = M<sup>e</sup> mod n</span></div>
+                <label>Krypteret data (Ciphertext):</label>
+                <div class="code-box" id="rsaCipherDisplay"></div>
+            </div>
+        </section>
+
+        <section id="rsaStep3" class="hidden">
+            <h2 class="rsa-color"><div class="step-circle">3</div> Dekryptering</h2>
+            <button class="btn-rsa" onclick="runRsaStep3()">Dekrypter med Privat Nøgle (d)</button>
+
+            <div id="rsaOut3" class="hidden">
+                <div class="explainer">Formel: <span style="color:var(--primary)">M = C<sup>d</sup> mod n</span></div>
+                <label>Original besked:</label>
+                <div class="code-box" id="rsaPlainDisplay" style="color: white; font-size: 1.2rem;"></div>
+            </div>
+        </section>
+    </div>
+
+    <div id="caesarTab" class="tab-content">
+        
+        <section>
+            <h2 class="caesar-color"><div class="step-circle c-circle">A</div> Symmetrisk Kryptering</h2>
+            <p>I symmetrisk kryptering bruger afsender og modtager <b>samme nøgle</b>. Caesar-koden er et klassisk eksempel, hvor man forskyder alfabetet et bestemt antal pladser.</p>
+            
+            <div class="input-group">
+                <label>Din besked:</label>
+                <input type="text" id="cMsg" placeholder="F.eks. ANGREB VED DAGGRY">
             </div>
             <div class="input-group">
-                <label>Vælg Primtal q:</label>
-                <input type="number" id="qInput" value="53">
+                <label>Forskydning (Nøglen):</label>
+                <input type="number" id="cShift" value="3" min="1" max="25">
             </div>
-        </div>
-        <button onclick="runStep1()">Beregn Nøgler</button>
-
-        <div id="out1" class="hidden">
-            <div class="explainer">
-                <strong>Hvad sker der matematisk?</strong><br>
-                Først beregner vi <span style="color:var(--primary)">n = p * q</span>. Dette tal kaldes modulet. 
-                Derefter beregner vi "Eulers totient" <span style="color:var(--primary)">φ(n) = (p-1)*(q-1)</span>. 
-                Dette tal er kritisk, fordi det bruges til at "låse" nøglerne sammen.
+            
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px;">
+                <button class="btn-caesar" onclick="runCaesar(true)">Lås (Krypter)</button>
+                <button class="btn-caesar" style="background: #475569;" onclick="runCaesar(false)">Lås op (Dekrypter)</button>
             </div>
-            <div class="code-box" id="keyDisplay"></div>
-        </div>
-    </section>
 
-    <section id="step2" class="hidden">
-        <h2><div class="step-circle">2</div> Kryptering (Afsender)</h2>
-        <p>Når vi sender en besked, laver vi hvert bogstav om til et tal (via ASCII). Derefter bruger vi den offentlige nøgle <strong>(n, e)</strong>.</p>
-        
-        <div class="input-group">
-            <label>Din hemmelige besked:</label>
-            <input type="text" id="msgInput" placeholder="Skriv f.eks. SRP">
-        </div>
-        <button onclick="runStep2()">Krypter Besked</button>
-
-        <div id="out2" class="hidden">
-            <div class="explainer">
-                <strong>Formlen:</strong> <br>
-                For hvert tal <span style="color:var(--primary)">M</span> regner vi: <br>
-                <code style="color:var(--accent)">C = M<sup>e</sup> mod n</code><br><br>
-                Her er <span style="color:var(--primary)">e</span> den offentlige eksponent. Selvom alle kender <i>n</i> og <i>e</i>, kan de ikke regne baglæns uden den hemmelige nøgle!
+            <div id="cOut" class="hidden" style="margin-top: 20px;">
+                <div class="explainer caesar-exp" id="cExplain"></div>
+                <div class="code-box" id="cResult" style="color: white; font-size: 1.2rem;"></div>
             </div>
-            <label>Krypteret data (Ciphertext):</label>
-            <div class="code-box" id="cipherDisplay"></div>
-        </div>
-    </section>
+        </section>
 
-    <section id="step3" class="hidden">
-        <h2><div class="step-circle">3</div> Dekryptering (Modtager)</h2>
-        <p>Modtageren bruger nu sin private nøgle <strong>d</strong>. Det er den eneste nøgle i verden, der kan låse op for de tal, vi lige har genereret.</p>
-        
-        <button onclick="runStep3()">Dekrypter med Privat Nøgle</button>
-
-        <div id="out3" class="hidden">
-            <div class="explainer">
-                <strong>Hvordan virker det?</strong><br>
-                Vi bruger den private nøgle <span style="color:var(--primary)">d</span>: <br>
-                <code style="color:var(--accent)">M = C<sup>d</sup> mod n</code><br><br>
-                Tallet <span style="color:var(--primary)">d</span> er beregnet således, at det matematisk ophæver effekten af <span style="color:var(--primary)">e</span>, men kun når vi arbejder "mod n".
+        <section>
+            <h2 class="caesar-color">Sammenligning til SRP</h2>
+            <p>Hvorfor bruger vi overhovedet kompliceret RSA-matematik, når symmetrisk kryptering er så let og hurtig?</p>
+            <div class="explainer caesar-exp">
+                <strong>Nøgleudvekslingsproblemet:</strong><br>
+                For at modtageren kan læse din Caesar-kode, skal de kende nøglen (f.eks. 3). Men hvordan sender du tallet 3 til dem uden at en hacker opfanger det? <br><br>
+                <b>Løsningen:</b> Internettet bruger i dag RSA (Asymmetrisk) til at sende den symmetriske nøgle sikkert afsted over nettet, og bruger derefter den symmetriske (som er hurtigere) til resten af samtalen.
             </div>
-            <label>Resultat:</label>
-            <div class="code-box" id="plainDisplay" style="font-size: 1.5rem; color: white;"></div>
-        </div>
-    </section>
+        </section>
 
-    <section id="step4" class="hidden conclusion">
-        <h2>Konklusion & Perspektivering</h2>
-        <p>Du har lige gennemført en <strong>asymmetrisk kryptering</strong>. Her er de tre vigtigste pointer til din SRP:</p>
-        <ul>
-            <li><strong>Faktorisering:</strong> Sikkerheden ligger i, at det er let at gange p og q, men næsten umuligt for en computer at finde p og q ud fra <i>n</i>, hvis tallene er store nok.</li>
-            <li><strong>Ingen nøgleudveksling:</strong> Afsenderen behøver aldrig kende den private nøgle. Det løser det klassiske problem med, hvordan man sender en nøgle sikkert.</li>
-            <li><strong>Virkeligheden:</strong> RSA bruges i dag til HTTPS, NemID/MitID og digitale signaturer overalt på internettet.</li>
-        </ul>
-        <p><i>Uden denne matematik ville nethandel og sikker kommunikation være umulig.</i></p>
-    </section>
+    </div>
 
     <footer>
-        &copy; 2026 Rasmus - SRP Projekt om RSA og Cybersikkerhed
+        &copy; 2026 Rasmus - SRP om Cybersikkerhed
     </footer>
 </div>
 
 <script>
-    // RSA Logik Variabler
+    // --- TAB LOGIK ---
+    function switchTab(tabName) {
+        document.getElementById('rsaTab').classList.remove('active');
+        document.getElementById('caesarTab').classList.remove('active');
+        document.getElementById('btnRsa').classList.remove('active-rsa');
+        document.getElementById('btnCaesar').classList.remove('active-caesar');
+
+        if (tabName === 'rsa') {
+            document.getElementById('rsaTab').classList.add('active');
+            document.getElementById('btnRsa').classList.add('active-rsa');
+        } else {
+            document.getElementById('caesarTab').classList.add('active');
+            document.getElementById('btnCaesar').classList.add('active-caesar');
+        }
+    }
+
+    // --- RSA LOGIK (Opdateret og sikret) ---
     let n, e, d, encryptedData = [];
 
-    // Hjælpefunktioner
+    // Hjælpematematik med BigInt
+    function gcdBigInt(a, b) { return b === 0n ? a : gcdBigInt(b, a % b); }
     function isPrime(num) {
         if (num <= 1) return false;
         for (let i = 2; i <= Math.sqrt(num); i++) if (num % i === 0) return false;
         return true;
     }
 
-    function gcd(a, b) { return b ? gcd(b, a % b) : a; }
-
-    function modInverse(e, phi) {
-        let m0 = phi, t, q;
-        let x0 = 0n, x1 = 1n;
-        if (phi === 1n) return 0n;
-        while (e > 1n) {
-            q = e / phi;
-            t = phi;
-            phi = e % phi;
-            e = t;
+    // Stabil modulær invers
+    function modInverse(a, m) {
+        let m0 = m, x0 = 0n, x1 = 1n;
+        if (m === 1n) return 0n;
+        while (a > 1n) {
+            let q = a / m;
+            let t = m;
+            m = a % m;
+            a = t;
             t = x0;
             x0 = x1 - q * x0;
             x1 = t;
@@ -257,32 +330,38 @@
         return res;
     }
 
-    // INTERAKTIVE STEPS
-    function runStep1() {
-        const p = BigInt(document.getElementById('pInput').value);
-        const q = BigInt(document.getElementById('qInput').value);
+    function runRsaStep1() {
+        const pVal = Number(document.getElementById('pInput').value);
+        const qVal = Number(document.getElementById('qInput').value);
 
-        if (!isPrime(Number(p)) || !isPrime(Number(q))) {
-            alert("Fejl: Begge tal skal være primtal!");
-            return;
+        if (!isPrime(pVal) || !isPrime(qVal)) {
+            alert("Fejl: p og q skal være primtal!"); return;
         }
+        if (pVal * qVal < 256) {
+            alert("Fejl for at undgå '???': Dit modulus (p*q) er mindre end 256. Vælg større primtal, så der er plads til hele alfabetet!"); return;
+        }
+
+        const p = BigInt(pVal);
+        const q = BigInt(qVal);
 
         n = p * q;
         let phi = (p - 1n) * (q - 1n);
         e = 65537n;
-        if (gcd(Number(e), Number(phi)) !== 1) e = 3n;
+        
+        // Sikr at e og phi er indbyrdes primiske
+        if (gcdBigInt(e, phi) !== 1n) e = 3n; 
+        
         d = modInverse(e, phi);
 
-        document.getElementById('keyDisplay').innerHTML = 
-            `Offentlig Nøgle: (n=${n}, e=${e})<br>Privat Nøgle: (d=${d})`;
+        document.getElementById('rsaKeyDisplay').innerHTML = 
+            `Offentlig Nøgle (Alle kan se):<br>n = ${n}<br>e = ${e}<br><br>Privat Nøgle (Kun du kender):<br>d = ${d}`;
         
-        document.getElementById('out1').classList.remove('hidden');
-        document.getElementById('step2').classList.remove('hidden');
-        document.getElementById('step2').scrollIntoView({ behavior: 'smooth' });
+        document.getElementById('rsaOut1').classList.remove('hidden');
+        document.getElementById('rsaStep2').classList.remove('hidden');
     }
 
-    function runStep2() {
-        const msg = document.getElementById('msgInput').value;
+    function runRsaStep2() {
+        const msg = document.getElementById('rsaMsgInput').value;
         if (!msg) return;
 
         encryptedData = [];
@@ -291,23 +370,52 @@
             encryptedData.push(powerMod(m, e, n));
         }
 
-        document.getElementById('cipherDisplay').innerText = encryptedData.join(" | ");
-        document.getElementById('out2').classList.remove('hidden');
-        document.getElementById('step3').classList.remove('hidden');
-        document.getElementById('step3').scrollIntoView({ behavior: 'smooth' });
+        document.getElementById('rsaCipherDisplay').innerText = encryptedData.join(" ");
+        document.getElementById('rsaOut2').classList.remove('hidden');
+        document.getElementById('rsaStep3').classList.remove('hidden');
     }
 
-    function runStep3() {
+    function runRsaStep3() {
         let decryptedText = "";
         for (let c of encryptedData) {
             let m = powerMod(c, d, n);
             decryptedText += String.fromCharCode(Number(m));
         }
 
-        document.getElementById('plainDisplay').innerText = decryptedText;
-        document.getElementById('out3').classList.remove('hidden');
-        document.getElementById('step4').classList.remove('hidden');
-        document.getElementById('step4').scrollIntoView({ behavior: 'smooth' });
+        document.getElementById('rsaPlainDisplay').innerText = decryptedText;
+        document.getElementById('rsaOut3').classList.remove('hidden');
+    }
+
+    // --- CAESAR LOGIK ---
+    function runCaesar(isEncrypt) {
+        let msg = document.getElementById('cMsg').value;
+        let shift = parseInt(document.getElementById('cShift').value) || 3;
+        
+        if (!isEncrypt) shift = -shift; // Dekryptering rykker baglæns
+
+        let result = "";
+        for (let i = 0; i < msg.length; i++) {
+            let code = msg.charCodeAt(i);
+            
+            // Store bogstaver A-Z
+            if (code >= 65 && code <= 90) {
+                result += String.fromCharCode(((code - 65 + shift + 26) % 26) + 65);
+            } 
+            // Små bogstaver a-z
+            else if (code >= 97 && code <= 122) {
+                result += String.fromCharCode(((code - 97 + shift + 26) % 26) + 97);
+            } 
+            // Undlad at ændre mellemrum, tal og tegn
+            else {
+                result += msg.charAt(i);
+            }
+        }
+
+        document.getElementById('cResult').innerText = result;
+        document.getElementById('cExplain').innerHTML = isEncrypt 
+            ? `<b>Kryptering:</b> Alle bogstaver er skubbet ${Math.abs(shift)} pladser <i>frem</i> i alfabetet.`
+            : `<b>Dekryptering:</b> Alle bogstaver er skubbet ${Math.abs(shift)} pladser <i>tilbage</i> i alfabetet.`;
+        document.getElementById('cOut').classList.remove('hidden');
     }
 </script>
 
