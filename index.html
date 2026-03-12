@@ -41,7 +41,6 @@
             margin-bottom: 30px;
         }
 
-        /* TABS SYSTEM */
         .tab-container {
             display: flex;
             gap: 5px;
@@ -81,36 +80,17 @@
             border: 1px solid #334155;
         }
 
+        .formula-box {
+            background: rgba(0, 0, 0, 0.2);
+            border-left: 4px solid var(--accent);
+            padding: 15px;
+            margin: 15px 0;
+            font-family: 'Times New Roman', serif;
+            font-style: italic;
+        }
+
         h2 { display: flex; align-items: center; gap: 12px; margin-top: 0; }
         
-        .input-group { margin: 15px 0; }
-        label { display: block; margin-bottom: 8px; color: var(--text-dim); font-size: 0.9rem; }
-        
-        input {
-            width: 100%;
-            padding: 12px;
-            background: #0f172a;
-            border: 1px solid #334155;
-            border-radius: 8px;
-            color: white;
-            box-sizing: border-box;
-        }
-
-        button {
-            color: white;
-            border: none;
-            padding: 14px;
-            border-radius: 8px;
-            font-weight: 600;
-            cursor: pointer;
-            width: 100%;
-            margin-top: 10px;
-        }
-
-        .btn-rsa { background: var(--primary); }
-        .btn-theory { background: var(--theory); color: #000; }
-        .btn-caesar { background: var(--caesar); }
-
         .code-box {
             background: #000;
             padding: 15px;
@@ -121,72 +101,79 @@
             margin: 10px 0;
         }
 
-        .theory-grid {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 20px;
+        .theory-card {
+            background: rgba(255,255,255,0.03);
+            border: 1px solid #475569;
+            padding: 20px;
+            border-radius: 12px;
+            margin-bottom: 15px;
         }
-
-        .badge {
-            padding: 4px 8px;
-            border-radius: 4px;
-            font-size: 0.8rem;
-            font-weight: bold;
-            text-transform: uppercase;
-        }
-        .badge-pos { background: rgba(16, 185, 129, 0.2); color: #10b981; }
-        .badge-neg { background: rgba(239, 68, 68, 0.2); color: #ef4444; }
 
         .hidden { display: none; }
-        footer { text-align: center; color: var(--text-dim); font-size: 0.8rem; padding: 20px; }
+        input { width: 100%; padding: 12px; background: #0f172a; border: 1px solid #334155; border-radius: 8px; color: white; box-sizing: border-box; }
+        button { color: white; border: none; padding: 14px; border-radius: 8px; font-weight: 600; cursor: pointer; width: 100%; margin-top: 10px; }
+        .btn-rsa { background: var(--primary); }
+        .btn-theory { background: var(--theory); color: #000; }
+        .btn-caesar { background: var(--caesar); }
     </style>
 </head>
 <body>
 
 <div class="container">
     <header>
-        <h1>SRP: Kryptografi</h1>
-        <p style="color: var(--primary); margin: 0;">Rasmus' Interaktive Web-Applikation</p>
+        <h1>SRP: Kryptografi Portalen</h1>
+        <p style="color: var(--primary); margin: 0;">Matematik & Teori bag Sikker Kommunikation</p>
     </header>
 
     <div class="tab-container">
         <button id="tab1" class="tab-btn active-rsa" onclick="switchTab('rsa')">Asymmetrisk (RSA)</button>
-        <button id="tab2" class="tab-btn" onclick="switchTab('theory')">Teori & Sammenligning</button>
+        <button id="tab2" class="tab-btn" onclick="switchTab('theory')">Teori bag typerne</button>
         <button id="tab3" class="tab-btn" onclick="switchTab('caesar')">Symmetrisk (Caesar)</button>
     </div>
 
     <div id="rsaContent" class="tab-content active">
         <section>
-            <h2 style="color: var(--primary)">1. Nøglegenerering</h2>
+            <h2 style="color: var(--primary)">Trin 1: Nøglegenerering</h2>
+            <p>RSA starter med at vælge to hemmelige primtal $p$ og $q$. Herfra skabes nøgleparret.</p>
             <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px;">
-                <div class="input-group">
-                    <label>Primtal p:</label>
-                    <input type="number" id="pIn" value="61">
-                </div>
-                <div class="input-group">
-                    <label>Primtal q:</label>
-                    <input type="number" id="qIn" value="53">
-                </div>
+                <input type="number" id="pIn" value="61">
+                <input type="number" id="qIn" value="53">
             </div>
-            <button class="btn-rsa" onclick="rsaStep1()">Generer RSA Nøgler</button>
+            <button class="btn-rsa" onclick="rsaStep1()">Beregn Nøgler</button>
             <div id="rsaOut1" class="hidden">
+                <div class="formula-box">
+                    1. Modulus: $n = p \cdot q$<br>
+                    2. Totient: $\phi(n) = (p-1) \cdot (q-1)$<br>
+                    3. Offentlig eksponent: $e = 65537$ (valgt standard)<br>
+                    4. Privat nøgle: $d$ findes så $(d \cdot e) \equiv 1 \pmod{\phi(n)}$
+                </div>
                 <div class="code-box" id="rsaKeys"></div>
             </div>
         </section>
 
         <section id="rsaStep2" class="hidden">
-            <h2 style="color: var(--primary)">2. Kryptering</h2>
-            <input type="text" id="rsaMsg" placeholder="Skriv din hemmelighed...">
-            <button class="btn-rsa" onclick="rsaStep2()">Krypter (M^e mod n)</button>
+            <h2 style="color: var(--primary)">Trin 2: Kryptering (Alice)</h2>
+            <p>For at sende en besked $M$, bruger afsenderen din offentlige nøgle $(n, e)$.</p>
+            <input type="text" id="rsaMsg" placeholder="Skriv din tekst her...">
+            <button class="btn-rsa" onclick="rsaStep2()">Udfør Kryptering</button>
             <div id="rsaOut2" class="hidden">
+                <div class="formula-box">
+                    Formel: $C = M^e \pmod{n}$<br>
+                    Hvert bogstav omregnes til ASCII og "låses" med din offentlige eksponent $e$.
+                </div>
                 <div class="code-box" id="rsaCipher"></div>
             </div>
         </section>
 
         <section id="rsaStep3" class="hidden">
-            <h2 style="color: var(--primary)">3. Dekryptering</h2>
-            <button class="btn-rsa" onclick="rsaStep3()">Dekrypter (C^d mod n)</button>
+            <h2 style="color: var(--primary)">Trin 3: Dekryptering (Bob)</h2>
+            <p>Kun ejeren af den private nøgle $d$ kan låse tallene op igen.</p>
+            <button class="btn-rsa" onclick="rsaStep3()">Udfør Dekryptering</button>
             <div id="rsaOut3" class="hidden">
+                <div class="formula-box">
+                    Formel: $M = C^d \pmod{n}$<br>
+                    Matematisk ophæver $d$ effekten af $e$ takket være Eulers sætning.
+                </div>
                 <div class="code-box" id="rsaPlain" style="color: white; font-size: 1.2rem;"></div>
             </div>
         </section>
@@ -194,79 +181,58 @@
 
     <div id="theoryContent" class="tab-content">
         <section>
-            <h2 style="color: var(--theory)">Symmetrisk vs. Asymmetrisk</h2>
-            <p>I din SRP er det vigtigt at skelne mellem de to hovedtyper af kryptografi:</p>
-            
-            <div class="theory-grid">
-                <div>
-                    <h3 style="color: var(--caesar)">Symmetrisk (Caesar)</h3>
-                    <p>Bruger <b>samme nøgle</b> til både at låse og låse op.</p>
-                    <span class="badge badge-pos">Styrke:</span> Lynhurtigt. <br>
-                    <span class="badge badge-neg">Svaghed:</span> Hvordan sender man nøglen sikkert til modtageren? (Nøgleudvekslingsproblemet).
-                </div>
-                <div>
-                    <h3 style="color: var(--primary)">Asymmetrisk (RSA)</h3>
-                    <p>Bruger <b>to forskellige nøgler</b>: En offentlig og en privat.</p>
-                    <span class="badge badge-pos">Styrke:</span> Ingen hemmelig nøgle skal sendes. <br>
-                    <span class="badge badge-neg">Svaghed:</span> Meget tungt matematisk (langsomt).
-                </div>
+            <h2 style="color: var(--theory)">Asymmetrisk (RSA) Teori</h2>
+            <div class="theory-card">
+                <strong>Hvordan virker det?</strong><br>
+                RSA er baseret på <i>faktoreringsproblemet</i>. Det er nemt at gange to store primtal, men ekstremt svært at finde primtallene ud fra resultatet.
+                <ul>
+                    <li><b>Offentlig nøgle:</b> Envejs-låsen. Alle kan låse, ingen kan låse op.</li>
+                    <li><b>Privat nøgle:</b> Den eneste nøgle i universet der passer i låsen.</li>
+                </ul>
             </div>
-        </section>
-
-        <section>
-            <h2 style="color: var(--theory)">Hvorfor bruger vi begge?</h2>
-            <p>I virkeligheden (f.eks. HTTPS/Hjemmesider) bruger vi en hybrid-løsning:</p>
-            <ol>
-                <li>Vi bruger <b>RSA</b> til at sende en symmetrisk nøgle sikkert afsted.</li>
-                <li>Derefter bruger vi den symmetriske nøgle (f.eks. <b>AES</b>) til at kryptere selve dataen, fordi det er hurtigere.</li>
-            </ol>
-            <p><i>Uden asymmetrisk kryptering ville vi aldrig kunne handle sikkert på nettet med folk, vi ikke har mødt i virkeligheden.</i></p>
+            
+            <h2 style="color: var(--caesar)">Symmetrisk (Caesar) Teori</h2>
+            <div class="theory-card">
+                <strong>Hvordan virker det?</strong><br>
+                Her bruges den samme nøgle (forskydning) til både kryptering og dekryptering.
+                <ul>
+                    <li><b>Fordel:</b> Lynhurtigt og kræver minimal regnekraft.</li>
+                    <li><b>Udfordring:</b> Hvordan sender du nøglen til din modtager uden at hackeren ser den? (Dette kaldes Nøgleudvekslingsproblemet).</li>
+                </ul>
+            </div>
         </section>
     </div>
 
     <div id="caesarContent" class="tab-content">
         <section>
-            <h2 style="color: var(--caesar)">Caesar Cipher</h2>
-            <div class="input-group">
-                <label>Tekst:</label>
-                <input type="text" id="cInput" placeholder="Skriv tekst her...">
-            </div>
-            <div class="input-group">
-                <label>Forskydning (Nøgle):</label>
-                <input type="number" id="cKey" value="3">
-            </div>
-            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px;">
+            <h2 style="color: var(--caesar)">Symmetrisk Trin-for-trin</h2>
+            <input type="text" id="cInput" placeholder="Tekst...">
+            <input type="number" id="cKey" value="3" style="margin-top: 10px;">
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-top: 10px;">
                 <button class="btn-caesar" onclick="doCaesar(true)">Krypter</button>
                 <button class="btn-caesar" style="background: #475569" onclick="doCaesar(false)">Dekrypter</button>
             </div>
-            <div id="cOut" class="hidden" style="margin-top: 20px;">
-                <label>Resultat:</label>
-                <div class="code-box" id="cRes" style="color: white; font-size: 1.2rem;"></div>
+            <div id="cOut" class="hidden">
+                <div class="formula-box" id="cFormula"></div>
+                <div class="code-box" id="cRes" style="color: white;"></div>
             </div>
         </section>
     </div>
 
-    <footer>&copy; 2026 Rasmus - SRP om Cybersikkerhed</footer>
+    <footer>&copy; 2026 Rasmus - SRP Projekt</footer>
 </div>
 
 <script>
-    // NAVIGATION
     function switchTab(name) {
         document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
-        document.querySelectorAll('.tab-btn').forEach(b => {
-            b.classList.remove('active-rsa', 'active-theory', 'active-caesar');
-        });
-
+        document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active-rsa', 'active-theory', 'active-caesar'));
         document.getElementById(name + 'Content').classList.add('active');
-        const btn = document.getElementById('tab' + (name === 'rsa' ? '1' : name === 'theory' ? '2' : '3'));
-        btn.classList.add('active-' + name);
+        document.getElementById('tab' + (name==='rsa'?'1':name==='theory'?'2':'3')).classList.add('active-'+name);
     }
 
-    // RSA LOGIK
     let n, e, d, encrypted = [];
     function gcd(a, b) { return b === 0n ? a : gcd(b, a % b); }
     function isPrime(n) { if (n < 2) return false; for(let i=2; i<=Math.sqrt(n); i++) if(n%i===0) return false; return true; }
-    
     function modInverse(a, m) {
         let m0 = m, x0 = 0n, x1 = 1n;
         while (a > 1n) {
@@ -276,7 +242,6 @@
         }
         return x1 < 0n ? x1 + m0 : x1;
     }
-
     function powerMod(base, exp, mod) {
         let res = 1n; base %= mod;
         while (exp > 0n) {
@@ -287,19 +252,15 @@
     }
 
     function rsaStep1() {
-        let pV = Number(document.getElementById('pIn').value);
-        let qV = Number(document.getElementById('qIn').value);
-        if (!isPrime(pV) || !isPrime(qV)) { alert("Begge skal være primtal!"); return; }
-        if (pV * qV < 256) { alert("Modulus p*q skal være over 256 for at undgå fejl med bogstaver!"); return; }
-        
-        let p = BigInt(pV), q = BigInt(qV);
-        n = p * q;
-        let phi = (p-1n)*(q-1n);
+        let pV = BigInt(document.getElementById('pIn').value);
+        let qV = BigInt(document.getElementById('qIn').value);
+        if (!isPrime(Number(pV)) || !isPrime(Number(qV))) { alert("Brug primtal!"); return; }
+        n = pV * qV;
+        let phi = (pV-1n)*(qV-1n);
         e = 65537n;
         if (gcd(e, phi) !== 1n) e = 3n;
         d = modInverse(e, phi);
-
-        document.getElementById('rsaKeys').innerHTML = `Offentlig: (n=${n}, e=${e})<br>Privat: (d=${d})`;
+        document.getElementById('rsaKeys').innerHTML = `n: ${n} (Offentlig)<br>e: ${e} (Offentlig)<br>d: ${d} (Privat)`;
         document.getElementById('rsaOut1').classList.remove('hidden');
         document.getElementById('rsaStep2').classList.remove('hidden');
     }
@@ -318,18 +279,22 @@
         document.getElementById('rsaOut3').classList.remove('hidden');
     }
 
-    // CAESAR LOGIK (Med fix for store nøgler som 67)
     function doCaesar(enc) {
         let txt = document.getElementById('cInput').value;
-        let k = parseInt(document.getElementById('cKey').value) % 26;
-        if (!enc) k = -k;
-
-        document.getElementById('cRes').innerText = [...txt].map(char => {
-            let code = char.charCodeAt(0);
-            if (code >= 65 && code <= 90) return String.fromCharCode(((code - 65 + k + 26) % 26) + 65);
-            if (code >= 97 && code <= 122) return String.fromCharCode(((code - 97 + k + 26) % 26) + 97);
-            return char;
+        let k = parseInt(document.getElementById('cKey').value);
+        let shift = ((k % 26) + 26) % 26;
+        if (!enc) shift = (26 - shift) % 26;
+        
+        document.getElementById('cRes').innerText = [...txt].map(c => {
+            let code = c.charCodeAt(0);
+            if (code >= 65 && code <= 90) return String.fromCharCode(((code - 65 + shift) % 26) + 65);
+            if (code >= 97 && code <= 122) return String.fromCharCode(((code - 97 + shift) % 26) + 97);
+            return c;
         }).join("");
+        
+        document.getElementById('cFormula').innerHTML = enc 
+            ? `Kryptering: $f(p) = (p + ${k}) \pmod{26}$` 
+            : `Dekryptering: $f(c) = (c - ${k}) \pmod{26}$`;
         document.getElementById('cOut').classList.remove('hidden');
     }
 </script>
