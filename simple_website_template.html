@@ -1,73 +1,300 @@
 <!DOCTYPE html>
 <html lang="da">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Min Hjemmeside</title>
-  <style>
-    body {
-      font-family: Arial, sans-serif;
-      margin: 0;
-      background: #f5f5f5;
-    }
-    header {
-      background: #222;
-      color: white;
-      padding: 20px;
-      text-align: center;
-    }
-    nav {
-      background: #444;
-      padding: 10px;
-      text-align: center;
-    }
-    nav a {
-      color: white;
-      margin: 0 10px;
-      text-decoration: none;
-      font-weight: bold;
-    }
-    .container {
-      padding: 40px;
-      max-width: 900px;
-      margin: auto;
-      background: white;
-    }
-    footer {
-      text-align: center;
-      padding: 20px;
-      background: #222;
-      color: white;
-      margin-top: 40px;
-    }
-  </style>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Rasmus' SRP - RSA Kryptering</title>
+    <style>
+        :root {
+            --primary: #2563eb;
+            --secondary: #10b981;
+            --bg: #f1f5f9;
+            --card: #ffffff;
+            --text: #1e293b;
+            --accent: #6366f1;
+        }
+
+        body {
+            font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+            background-color: var(--bg);
+            color: var(--text);
+            line-height: 1.6;
+            margin: 0;
+            padding: 0;
+        }
+
+        .container {
+            max-width: 900px;
+            margin: 40px auto;
+            padding: 0 20px;
+        }
+
+        header {
+            text-align: center;
+            padding: 50px 20px;
+            background: linear-gradient(135deg, #0f172a, #2563eb);
+            color: white;
+            border-radius: 16px;
+            margin-bottom: 30px;
+            box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.1);
+        }
+
+        h1 { margin: 0; font-size: 2.2rem; }
+        .subtitle { opacity: 0.9; margin-top: 10px; font-size: 1.1rem; }
+
+        section {
+            background: var(--card);
+            padding: 30px;
+            border-radius: 16px;
+            margin-bottom: 25px;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05);
+            border: 1px solid #e2e8f0;
+            transition: transform 0.2s;
+        }
+
+        h2 { 
+            color: var(--primary); 
+            margin-top: 0; 
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .step-num {
+            background: var(--primary);
+            color: white;
+            width: 30px;
+            height: 30px;
+            border-radius: 50%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-size: 0.9rem;
+        }
+
+        .input-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+            margin-bottom: 20px;
+        }
+
+        label { font-weight: 600; display: block; margin-bottom: 8px; }
+        input {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid #e2e8f0;
+            border-radius: 8px;
+            font-size: 1rem;
+            transition: border-color 0.3s;
+        }
+        input:focus { border-color: var(--primary); outline: none; }
+
+        button {
+            background: var(--primary);
+            color: white;
+            border: none;
+            padding: 14px 28px;
+            border-radius: 8px;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            width: 100%;
+            transition: filter 0.2s;
+        }
+        button:hover { filter: brightness(1.1); }
+
+        .explanation {
+            background: #f8fafc;
+            border-left: 4px solid var(--secondary);
+            padding: 20px;
+            margin-top: 20px;
+            border-radius: 0 8px 8px 0;
+            font-size: 0.95rem;
+        }
+
+        .result-box {
+            background: #1e293b;
+            color: #f8fafc;
+            padding: 20px;
+            border-radius: 8px;
+            font-family: 'Courier New', monospace;
+            word-break: break-all;
+            margin-top: 15px;
+        }
+
+        .math { font-family: "Times New Roman", serif; font-style: italic; }
+        .hidden { display: none; }
+        
+        footer { text-align: center; padding: 40px; color: #64748b; font-size: 0.9rem; }
+    </style>
 </head>
 <body>
 
-<header>
-  <h1>Velkommen til min hjemmeside</h1>
-  <p>Her kan du skrive hvad siden handler om</p>
-</header>
-
-<nav>
-  <a href="#">Forside</a>
-  <a href="#about">Om mig</a>
-  <a href="#contact">Kontakt</a>
-</nav>
-
 <div class="container">
-  <h2 id="about">Om mig</h2>
-  <p>
-    Skriv lidt om dig selv eller din virksomhed her.
-  </p>
+    <header>
+        <h1>Rasmus' SRP om Cybersikkerhed</h1>
+        <p class="subtitle">Interaktiv guide til RSA-kryptering for gymnasieelever</p>
+    </header>
 
-  <h2 id="contact">Kontakt</h2>
-  <p>Email: dinemail@email.dk</p>
+    <section>
+        <h2><span class="step-num">1</span> Vælg to primtal</h2>
+        <p>RSA starter med to store primtal, <span class="math">p</span> og <span class="math">q</span>. I virkeligheden er de enorme, men her bruger vi små tal for at forstå matematikken.</p>
+        <div class="input-grid">
+            <div>
+                <label>Primtal p:</label>
+                <input type="number" id="pInput" value="61" placeholder="F.eks. 61">
+            </div>
+            <div>
+                <label>Primtal q:</label>
+                <input type="number" id="qInput" value="53" placeholder="F.eks. 53">
+            </div>
+        </div>
+        <button onclick="generateKeys()">Generer nøgler & beregn matematikken</button>
+    </section>
+
+    <section id="mathSection" class="hidden">
+        <h2><span class="step-num">2</span> Beregning af nøglerne</h2>
+        <div id="mathExplanation" class="explanation"></div>
+        
+        <div class="input-grid" style="margin-top:20px;">
+            <div>
+                <label>Offentlig Nøgle (n, e):</label>
+                <div class="result-box" id="pubKeyDisplay"></div>
+            </div>
+            <div>
+                <label>Privat Nøgle (d):</label>
+                <div class="result-box" id="privKeyDisplay"></div>
+            </div>
+        </div>
+    </section>
+
+    <section id="encryptSection" class="hidden">
+        <h2><span class="step-num">3</span> Krypter din besked</h2>
+        <p>Nu bruger vi den offentlige nøgle til at låse en besked. Hvert bogstav laves om til et tal (ASCII).</p>
+        <input type="text" id="messageInput" placeholder="Skriv din besked her..." style="margin-bottom: 20px;">
+        <button onclick="encryptMessage()" style="background: var(--accent);">Lås beskeden (Krypter)</button>
+        
+        <div id="encryptResult" class="hidden">
+            <div class="explanation" id="encryptExplanation" style="border-left-color: var(--accent);"></div>
+            <label style="margin-top:20px;">Krypteret tekst (Ciphertext):</label>
+            <div class="result-box" id="encryptedValue"></div>
+        </div>
+    </section>
+    
+    <footer>
+        Lavet som en del af SRP-projektet om RSA-algoritmen og moderne cybersikkerhed.
+    </footer>
 </div>
 
-<footer>
-  <p>© 2026 Min Hjemmeside</p>
-</footer>
+<script>
+    let n, e, d, phi;
+
+    // Tjekker om et tal er et primtal
+    function isPrime(num) {
+        if (num <= 1) return false;
+        for (let i = 2; i <= Math.sqrt(num); i++) {
+            if (num % i === 0) return false;
+        }
+        return true;
+    }
+
+    // Finder Største Fælles Divisor
+    function gcd(a, b) {
+        return b ? gcd(b, a % b) : a;
+    }
+
+    // Finder den modulære inverse (d) vha. den udvidede Euklidiske algoritme
+    function modInverse(e, phi) {
+        let m0 = phi, t, q;
+        let x0 = 0n, x1 = 1n;
+        if (phi === 1n) return 0n;
+        while (e > 1n) {
+            q = e / phi;
+            t = phi;
+            phi = e % phi;
+            e = t;
+            t = x0;
+            x0 = x1 - q * x0;
+            x1 = t;
+        }
+        if (x1 < 0n) x1 += m0;
+        return x1;
+    }
+
+    // RSA Nøglegenerering
+    function generateKeys() {
+        const pVal = BigInt(document.getElementById('pInput').value);
+        const qVal = BigInt(document.getElementById('qInput').value);
+
+        if (!isPrime(Number(pVal)) || !isPrime(Number(qVal))) {
+            alert("Fejl! Begge tal skal være primtal. Prøv f.eks. 61 og 53.");
+            return;
+        }
+
+        n = pVal * qVal;
+        phi = (pVal - 1n) * (qVal - 1n);
+        e = 65537n; // Standard værdi for e i RSA
+
+        // Sikr at e og phi er indbyrdes primiske
+        if (gcd(Number(e), Number(phi)) !== 1) {
+            e = 3n; 
+        }
+
+        d = modInverse(e, phi);
+
+        // Opdater visning
+        document.getElementById('mathSection').classList.remove('hidden');
+        document.getElementById('encryptSection').classList.remove('hidden');
+        document.getElementById('pubKeyDisplay').innerText = `n: ${n}, e: ${e}`;
+        document.getElementById('privKeyDisplay').innerText = d;
+
+        document.getElementById('mathExplanation').innerHTML = `
+            <strong>Hvordan blev de beregnet?</strong><br>
+            1. <b>n</b> (Modulus) = p * q = ${pVal} * ${qVal} = <b>${n}</b>. Dette tal deles med alle.<br>
+            2. <b>&phi;(n)</b> (Eulers Totient) = (p-1)*(q-1) = <b>${phi}</b>. Dette tal fortæller os, hvor mange tal under <i>n</i>, der ikke deler faktorer med <i>n</i>.<br>
+            3. <b>e</b> (Offentlig eksponent) er valgt til <b>${e}</b>, da det er et primtal, der ikke går op i &phi;(n).<br>
+            4. <b>d</b> (Privat nøgle) er beregnet så: (d * e) MOD &phi;(n) = 1. Det blev <b>${d}</b>.
+        `;
+    }
+
+    // RSA Kryptering
+    function encryptMessage() {
+        const msg = document.getElementById('messageInput').value;
+        if (!msg) return;
+
+        let encryptedArray = [];
+        let stepsHTML = "<strong>Kryptering trin-for-trin:</strong><ul>";
+
+        for (let i = 0; i < msg.length; i++) {
+            let m = BigInt(msg.charCodeAt(i)); // Lav bogstav om til tal (ASCII)
+            let c = powerMod(m, e, n); // Formlen: C = M^e mod n
+            encryptedArray.push(c);
+
+            if (i < 2) { // Vis kun de første par bogstaver som eksempel
+                stepsHTML += `<li>'${msg[i]}' er ASCII <b>${m}</b>. Formel: ${m}<sup>${e}</sup> mod ${n} = <b>${c}</b></li>`;
+            }
+        }
+
+        stepsHTML += "<li>... og så videre for alle bogstaver.</li></ul>";
+
+        document.getElementById('encryptResult').classList.remove('hidden');
+        document.getElementById('encryptedValue').innerText = encryptedArray.join(", ");
+        document.getElementById('encryptExplanation').innerHTML = stepsHTML;
+    }
+
+    // Hurtig modulær eksponentiering (håndterer store potenser)
+    function powerMod(base, exp, mod) {
+        let res = 1n;
+        base = base % mod;
+        while (exp > 0n) {
+            if (exp % 2n === 1n) res = (res * base) % mod;
+            base = (base * base) % mod;
+            exp = exp / 2n;
+        }
+        return res;
+    }
+</script>
 
 </body>
 </html>
