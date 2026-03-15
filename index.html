@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Rasmus' SRP - Kryptografi Portalen</title>
+    <title>Rasmus' krypterings forklarelser</title>
     <style>
         :root {
             --bg: #0f172a;
@@ -39,6 +39,16 @@
             border-bottom: 3px solid var(--primary);
             border-radius: 20px;
             margin-bottom: 30px;
+        }
+
+        .purpose-box {
+            background: rgba(56, 189, 248, 0.1);
+            border: 1px solid var(--primary);
+            padding: 15px;
+            border-radius: 10px;
+            margin-top: 15px;
+            font-size: 0.95rem;
+            color: var(--text-dim);
         }
 
         .tab-container {
@@ -87,14 +97,9 @@
             margin: 15px 0;
             border-radius: 0 8px 8px 0;
             font-size: 0.95rem;
-            color: var(--text);
         }
 
-        .formula-box b {
-            color: var(--primary);
-            font-family: monospace;
-            font-size: 1.1rem;
-        }
+        .formula-box b { color: var(--primary); font-family: monospace; }
 
         .theory-card {
             background: rgba(255,255,255,0.03);
@@ -104,54 +109,51 @@
             margin-bottom: 20px;
         }
 
-        .theory-card h3 {
-            margin-top: 0;
-            color: var(--theory);
-            border-bottom: 1px solid #475569;
-            padding-bottom: 10px;
-        }
-
-        .pros-cons {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 20px;
-        }
+        .theory-card h3 { margin-top: 0; color: var(--theory); border-bottom: 1px solid #475569; padding-bottom: 10px; }
 
         .hidden { display: none; }
         input { width: 100%; padding: 12px; background: #0f172a; border: 1px solid #334155; border-radius: 8px; color: white; box-sizing: border-box; }
         button { color: white; border: none; padding: 14px; border-radius: 8px; font-weight: 600; cursor: pointer; width: 100%; margin-top: 10px; }
         .btn-rsa { background: var(--primary); }
         .btn-caesar { background: var(--caesar); }
+
+        table { width: 100%; border-collapse: collapse; margin-top: 15px; }
+        th, td { border: 1px solid #475569; padding: 10px; text-align: left; }
+        th { background: rgba(255,255,255,0.1); }
     </style>
 </head>
 <body>
 
 <div class="container">
     <header>
-        <h1>SRP: Kryptografi Portalen</h1>
-        <p style="color: var(--primary); margin: 0;">Forståelse af RSA & Caesar algoritmerne</p>
+        <h1>Rasmus' krypterings forklarelser</h1>
+        <div class="purpose-box">
+            <strong>Formål:</strong> Dette projekt er skabt til at formidle og illustrere RSA-kryptering for gymnasieelever, så de kan få en bedre visuel og matematisk forståelse af, hvordan vi sikrer data på internettet.
+        </div>
     </header>
 
     <div class="tab-container">
-        <button id="tab1" class="tab-btn active-rsa" onclick="switchTab('rsa')">Kør RSA Simulator</button>
-        <button id="tab2" class="tab-btn" onclick="switchTab('theory')">Dyb Teori & Matematik</button>
-        <button id="tab3" class="tab-btn" onclick="switchTab('caesar')">Symmetrisk (Caesar)</button>
+        <button id="tab1" class="tab-btn active-rsa" onclick="switchTab('rsa')">RSA Simulator</button>
+        <button id="tab2" class="tab-btn" onclick="switchTab('theory')">Teori bag krypteringstyperne</button>
+        <button id="tab3" class="tab-btn" onclick="switchTab('caesar')">Caesar Simulator</button>
     </div>
 
     <div id="rsaContent" class="tab-content active">
         <section>
             <h2 style="color: var(--primary)">Trin 1: Nøglegenerering</h2>
-            <p>Vælg to hemmelige primtal p og q (f.eks. 61 og 53).</p>
+            <p>Først vælges to primtal. I virkeligheden er de enorme, men her bruger vi små tal for overskuelighed.</p>
             <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px;">
                 <input type="number" id="pIn" value="61">
                 <input type="number" id="qIn" value="53">
             </div>
-            <button class="btn-rsa" onclick="rsaStep1()">Beregn Nøgler</button>
+            <button class="btn-rsa" onclick="rsaStep1()">Generer nøglepar</button>
             <div id="rsaOut1" class="hidden">
                 <div class="formula-box">
-                    <strong>Resultater:</strong><br>
-                    Modulus (n) = p * q<br>
-                    Totient (phi) = (p-1) * (q-1)
+                    <strong>Hvad skete der lige?</strong><br>
+                    1. <b>n (Modulus)</b> findes ved at gange p og q. Dette tal er offentligt.<br>
+                    2. <b>phi (Totient)</b> beregnes som (p-1)*(q-1). Dette tal bruges kun til at finde nøglerne og holdes hemmeligt.<br>
+                    3. <b>e (Offentlig eksponent)</b> er sat til <b>65537</b>. Hvorfor? Fordi det er et "Fermat-primtal", der gør kryptering lynhurtig for computere (da det kun kræver få matematiske operationer), samtidig med det er sikkert.<br>
+                    4. <b>d (Privat nøgle)</b> er den "multiplikative inverse" af e. Det betyder, at d er det tal, der præcis ophæver e, når vi regner med "mod phi".
                 </div>
                 <div class="code-box" id="rsaKeys"></div>
             </div>
@@ -159,8 +161,9 @@
 
         <section id="rsaStep2" class="hidden">
             <h2 style="color: var(--primary)">Trin 2: Kryptering</h2>
-            <input type="text" id="rsaMsg" placeholder="Skriv din hemmelige besked...">
-            <button class="btn-rsa" onclick="rsaStep2()">Krypter med Offentlig Nøgle (e)</button>
+            <p>Afsenderen tager beskeden (M), din eksponent (e) og din modulus (n).</p>
+            <input type="text" id="rsaMsg" placeholder="Skriv en besked...">
+            <button class="btn-rsa" onclick="rsaStep2()">Krypter: M^e mod n</button>
             <div id="rsaOut2" class="hidden">
                 <div class="code-box" id="rsaCipher"></div>
             </div>
@@ -168,7 +171,8 @@
 
         <section id="rsaStep3" class="hidden">
             <h2 style="color: var(--primary)">Trin 3: Dekryptering</h2>
-            <button class="btn-rsa" onclick="rsaStep3()">Dekrypter med Privat Nøgle (d)</button>
+            <p>Modtageren bruger den hemmelige nøgle (d) til at få beskeden tilbage.</p>
+            <button class="btn-rsa" onclick="rsaStep3()">Dekrypter: C^d mod n</button>
             <div id="rsaOut3" class="hidden">
                 <div class="code-box" id="rsaPlain" style="color: white; font-size: 1.2rem;"></div>
             </div>
@@ -177,63 +181,62 @@
 
     <div id="theoryContent" class="tab-content">
         <section>
-            <h2 style="color: var(--theory)">RSA: Den Asymmetriske Revolution</h2>
-            
+            <h2 style="color: var(--theory)">Symmetrisk Kryptering (Fokus: Caesar)</h2>
             <div class="theory-card">
-                <h3>Offentlig vs. Privat Nøgle</h3>
-                <p>I RSA har man to forskellige nøgler:</p>
-                <ul>
-                    <li><b>Offentlig Nøgle (n, e):</b> Denne kan alle se. Den bruges til at <i>låse</i> (kryptere) beskeden. Den består af produktet af to primtal (n) og en fastlagt eksponent (e).</li>
-                    <li><b>Privat Nøgle (d):</b> Denne kender kun modtageren. Den bruges til at <i>låse op</i> (dekryptere). Den beregnes matematisk ud fra totienten (phi).</li>
-                </ul>
-            </div>
-
-            <div class="theory-card">
-                <h3>Hvordan findes de? (Matematikken)</h3>
-                <p>Nøglerne findes gennem fire trin:</p>
+                <p>Caesar-kryptering er den mest kendte symmetriske metode. "Symmetrisk" betyder, at man bruger <b>den samme nøgle</b> til både at låse og låse op.</p>
+                <strong>Step-by-step i Caesar:</strong>
                 <ol>
-                    <li>Vælg to primtal <b>p</b> og <b>q</b>.</li>
-                    <li>Beregn <b>n = p * q</b>. Dette er din modulus.</li>
-                    <li>Beregn totienten <b>phi = (p-1) * (q-1)</b>.</li>
-                    <li>Find <b>d</b> således at: <b>(d * e) mod phi = 1</b>. Dette gøres ofte med den "Udvidede Euklidiske Algoritme".</li>
+                    <li>Man vælger en fast forskydning (f.eks. 3).</li>
+                    <li>Hvert bogstav i beskeden rykkes 3 pladser frem i alfabetet (A bliver til D).</li>
+                    <li>Modtageren skal kende den samme nøgle (3) for at rykke bogstaverne tilbage.</li>
                 </ol>
+                <p><i>Problem:</i> Hvis en hacker opsnapper nøglen undervejs, er al sikkerhed væk.</p>
             </div>
 
+            <h2 style="color: var(--primary)">Asymmetrisk Kryptering (RSA)</h2>
             <div class="theory-card">
-                <h3>Hvem vælger tallene?</h3>
-                <p>Det er <b>Modtageren</b>, der vælger primtallene p og q. Modtageren genererer både den offentlige og den private nøgle på sin egen computer. Derefter sendes den offentlige nøgle ud til afsenderen, mens den private nøgle aldrig forlader modtagerens maskine.</p>
+                <p>RSA løser problemet ved at bruge <b>to forskellige nøgler</b>. Det svarer til en postkasse, hvor alle kan smide breve ind (offentlig nøgle), men kun postbuddet har nøglen til at åbne den (privat nøgle).</p>
+                <strong>Hvorfor er RSA sikkert?</strong>
+                <p>Det er baseret på, at det er let at gange to tal, men ekstremt svært for en computer at finde ud af, hvilke to primtal der er brugt til at lave et meget stort tal (faktorisering).</p>
             </div>
 
+            <h2 style="color: var(--accent)">Sammenligning</h2>
             <div class="theory-card">
-                <h3>Sikkerhed og Størrelse</h3>
-                <p><b>Er større primtal mere sikre?</b> Ja, absolut. Sikkerheden i RSA hviler på, at det er næsten umuligt at faktorisere et meget stort tal (n) tilbage til p og q. Hvis p og q er små (som i eksemplet herover), kan en computer knække det på et splitsekund. I den virkelige verden bruger man primtal, der er så store, at det ville tage moderne computere milliarder af år at gætte dem.</p>
-            </div>
-
-            <div class="theory-card">
-                <h3>Fordele & Ulemper ved RSA</h3>
-                <div class="pros-cons">
-                    <div style="color: #4ade80;">
-                        <strong>Fordele:</strong><br>
-                        • Ingen behov for at udveksle hemmelige nøgler på forhånd.<br>
-                        • Meget høj sikkerhed mod hacking.<br>
-                        • Kan bruges til digitale signaturer.
-                    </div>
-                    <div style="color: #f87171;">
-                        <strong>Ulemper:</strong><br>
-                        • Meget langsommere end symmetrisk kryptering.<br>
-                        • Kræver stor regnekraft.<br>
-                        • Sårbar over for fremtidige kvantecomputere.
-                    </div>
-                </div>
+                <table>
+                    <tr>
+                        <th>Egenskab</th>
+                        <th>Symmetrisk (Caesar)</th>
+                        <th>Asymmetrisk (RSA)</th>
+                    </tr>
+                    <tr>
+                        <td>Nøgler</td>
+                        <td>Én delt nøgle</td>
+                        <td>To forskellige (Offentlig/Privat)</td>
+                    </tr>
+                    <tr>
+                        <td>Hastighed</td>
+                        <td>Meget hurtig</td>
+                        <td>Langsom (Tung matematik)</td>
+                    </tr>
+                    <tr>
+                        <td>Sikkerhed</td>
+                        <td>Lav (Nøglen skal deles)</td>
+                        <td>Høj (Privat nøgle deles aldrig)</td>
+                    </tr>
+                    <tr>
+                        <td>Brugsscenarie</td>
+                        <td>Lokal dataopbevaring</td>
+                        <td>Sikker kommunikation på nettet</td>
+                    </tr>
+                </table>
             </div>
         </section>
     </div>
 
     <div id="caesarContent" class="tab-content">
         <section>
-            <h2 style="color: var(--caesar)">Symmetrisk Simulator</h2>
-            <p>Her bruges den samme nøgle til både at kryptere og dekryptere.</p>
-            <input type="text" id="cInput" placeholder="Skriv din tekst...">
+            <h2 style="color: var(--caesar)">Caesar Simulator</h2>
+            <input type="text" id="cInput" placeholder="Skriv her...">
             <input type="number" id="cKey" value="3" style="margin-top: 10px;">
             <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-top: 10px;">
                 <button class="btn-caesar" onclick="doCaesar(true)">Krypter</button>
@@ -245,7 +248,7 @@
         </section>
     </div>
 
-    <footer>&copy; 2026 Rasmus - SRP Projekt</footer>
+    <footer>&copy; 2026 Rasmus - Formidling af Kryptografi til Gymnasiet</footer>
 </div>
 
 <script>
@@ -286,7 +289,7 @@
         e = 65537n;
         if (gcd(e, phi) !== 1n) e = 3n;
         d = modInverse(e, phi);
-        document.getElementById('rsaKeys').innerHTML = `n: ${n} (Offentlig)<br>e: ${e} (Offentlig)<br>d: ${d} (Privat)`;
+        document.getElementById('rsaKeys').innerHTML = `n (Offentlig): ${n}<br>e (Offentlig): ${e}<br>d (Privat): ${d}`;
         document.getElementById('rsaOut1').classList.remove('hidden');
         document.getElementById('rsaStep2').classList.remove('hidden');
     }
@@ -310,7 +313,6 @@
         let k = parseInt(document.getElementById('cKey').value);
         let shift = ((k % 26) + 26) % 26;
         if (!enc) shift = (26 - shift) % 26;
-        
         document.getElementById('cRes').innerText = [...txt].map(c => {
             let code = c.charCodeAt(0);
             if (code >= 65 && code <= 90) return String.fromCharCode(((code - 65 + shift) % 26) + 65);
