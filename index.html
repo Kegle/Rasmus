@@ -100,8 +100,6 @@
             font-size: 0.95rem;
         }
 
-        .formula-box b { color: var(--primary); font-family: monospace; }
-
         .theory-card {
             background: rgba(255,255,255,0.03);
             border: 1px solid #475569;
@@ -111,7 +109,7 @@
         }
 
         .theory-card h3 { margin-top: 0; color: var(--theory); border-bottom: 1px solid #475569; padding-bottom: 10px; }
-        .theory-card h4 { color: var(--accent); margin-bottom: 5px; }
+        .theory-card h4 { color: var(--accent); margin-bottom: 5px; margin-top: 15px; }
 
         .code-box {
             background: #000;
@@ -155,17 +153,17 @@
             <h2 style="color: var(--primary)">Trin 1: Nøglegenerering</h2>
             <p>RSA starter med at vælge to hemmelige primtal <b>p</b> og <b>q</b>. Herfra skabes nøgleparret.</p>
             <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px;">
-                <input type="number" id="pIn" value="61">
-                <input type="number" id="qIn" value="53">
+                <input type="number" id="pIn" value="61" title="Primtal p">
+                <input type="number" id="qIn" value="53" title="Primtal q">
             </div>
-            <button class="btn-rsa" onclick="rsaStep1()">Generer nøglepar</button>
+            <button class="btn-rsa" onclick="rsaStep1()">Beregn værdier (n, phi, e, d)</button>
             <div id="rsaOut1" class="hidden">
                 <div class="formula-box">
-                    <strong>Hvad skete der i matematikken?</strong><br>
-                    1. <b>n (Modulus)</b> findes ved at gange p og q. Dette tal er en del af den offentlige nøgle.<br>
-                    2. <b>phi (Totient)</b> beregnes som (p-1)*(q-1). Dette tal er fundamentet for at skabe den private nøgle.<br>
-                    3. <b>e (Offentlig eksponent)</b> er sat til <b>65537</b>. Det vælges, fordi det er et primtal (2^16 + 1), som gør krypteringen matematisk effektiv for computere.<br>
-                    4. <b>d (Privat nøgle)</b> findes ved at løse ligningen: <b>(d * e) mod phi = 1</b>. Kun d kan "låse op" for det, som e har "låst".
+                    <strong>Hvad skete der lige?</strong><br>
+                    1. <b>n (Modulus)</b> findes ved at gange p og q. Dette tal er offentligt.<br>
+                    2. <b>phi (Totient)</b> beregnes som (p-1)*(q-1). Dette tal bruges kun til at finde nøglerne og holdes hemmeligt.<br>
+                    3. <b>e (Offentlig eksponent)</b> er sat til <b>65537</b>. Det vælges, fordi det er et primtal (2^16 + 1), som gør kryptering lynhurtig for computere.<br>
+                    4. <b>d (Privat nøgle)</b> er den "multiplikative inverse" af e. Det betyder, at d er det tal, der præcis ophæver e, når vi regner med "mod phi".
                 </div>
                 <div class="code-box" id="rsaKeys"></div>
             </div>
@@ -173,9 +171,9 @@
 
         <section id="rsaStep2" class="hidden">
             <h2 style="color: var(--primary)">Trin 2: Kryptering (Afsender)</h2>
-            <p>Afsenderen bruger din offentlige nøgle (n, e) til at låse beskeden.</p>
-            <input type="text" id="rsaMsg" placeholder="Skriv din hemmelige besked her...">
-            <button class="btn-rsa" onclick="rsaStep2()">Udfør: C = M^e mod n</button>
+            <p>Afsenderen tager beskeden (M), din eksponent (e) og din modulus (n).</p>
+            <input type="text" id="rsaMsg" placeholder="Skriv din hemmelige besked...">
+            <button class="btn-rsa" onclick="rsaStep2()">Krypter: M^e mod n</button>
             <div id="rsaOut2" class="hidden">
                 <div class="code-box" id="rsaCipher"></div>
             </div>
@@ -183,8 +181,8 @@
 
         <section id="rsaStep3" class="hidden">
             <h2 style="color: var(--primary)">Trin 3: Dekryptering (Modtager)</h2>
-            <p>Modtageren bruger sin private nøgle <b>d</b>. Det er den eneste nøgle i verden, der kan låse op for tallene.</p>
-            <button class="btn-rsa" onclick="rsaStep3()">Udfør: M = C^d mod n</button>
+            <p>Modtageren bruger den hemmelige nøgle (d) til at få beskeden tilbage.</p>
+            <button class="btn-rsa" onclick="rsaStep3()">Dekrypter: C^d mod n</button>
             <div id="rsaOut3" class="hidden">
                 <div class="code-box" id="rsaPlain" style="color: white; font-size: 1.2rem;"></div>
             </div>
@@ -193,29 +191,49 @@
 
     <div id="theoryContent" class="tab-content">
         <section>
-            <h2 style="color: var(--theory)">Symmetrisk Kryptering (Caesar)</h2>
+            <h2 style="color: var(--theory)">Symmetrisk vs. Asymmetrisk</h2>
+            
             <div class="theory-card">
-                <h4>Hvad er det?</h4>
-                <p>Symmetrisk kryptering betyder, at man bruger <b>den samme nøgle</b> til både at låse og låse op. I Caesar-kryptering er nøglen blot en forskydning af alfabetet.</p>
-                <h4>Hvorfor bruger vi det (næsten) ikke alene?</h4>
-                <p>Det store problem er <b>nøgleudveksling</b>. Hvis jeg vil sende en sikker besked til dig, men vi aldrig har mødtes, hvordan skal jeg så give dig nøglen uden at en hacker ser den? Det er her asymmetrisk kryptering kommer ind i billedet.</p>
+                <h3>Symmetrisk (Caesar)</h3>
+                <p>I symmetrisk kryptering bruger man den samme nøgle til både at låse og låse op. Caesar-algoritmen rykker bogstaverne i alfabetet et vist antal pladser (f.eks. nøgle = 3).</p>
+                <p><b>Hovedproblemet:</b> Hvis to personer skal skrive sammen, skal de først mødes i virkeligheden for at udveksle nøglen. Hvis de sender nøglen over nettet, kan en hacker se den.</p>
             </div>
 
-            <h2 style="color: var(--primary)">Asymmetrisk Kryptering (RSA)</h2>
             <div class="theory-card">
-                <h4>Hvor bruges RSA i virkeligheden?</h4>
-                <ul>
-                    <li><b>HTTPS (Internetbrowsing):</b> Hver gang du ser en hængelås i din browser, bruger din computer RSA (eller lignende) til at verificere, at hjemmesiden er ægte.</li>
-                    <li><b>MitID / Digitale Signaturer:</b> Når du logger på banken, bruger du din private nøgle til at "skrive under" på, at du er dig.</li>
-                    <li><b>E-mail kryptering:</b> Bruges til at sende følsomme dokumenter sikkert mellem offentlige instanser.</li>
-                </ul>
+                <h3>Asymmetrisk (RSA)</h3>
+                <p>RSA løser dette ved at bruge to forskellige nøgler. Det svarer til en postkasse: Alle kan smide breve ind (offentlig nøgle), men kun ejeren har nøglen til at åbne den (privat nøgle).</p>
                 
-                <h4>Hvorfor bruger vi RSA?</h4>
-                <p>RSA er revolutionerende, fordi det tillader to personer at kommunikere sikkert <b>uden nogensinde at have mødtes</b> eller udvekslet en hemmelig kode før. Det bygger på <b>faktorisering</b>: Det er let at gange to tal (p og q), men næsten umuligt for en computer at finde dem igen ud fra resultatet (n), hvis tallene er store nok.</p>
+                <h4>Hvor bruges det?</h4>
+                <ul>
+                    <li><b>HTTPS:</b> Sikrer din forbindelse til hjemmesider som Google og Facebook.</li>
+                    <li><b>MitID:</b> Bekræfter din identitet digitalt.</li>
+                    <li><b>Digitale signaturer:</b> Sikrer at dokumenter ikke er blevet ændret.</li>
+                </ul>
             </div>
 
-            <h2 style="color: var(--accent)">Sammenligning</h2>
             <div class="theory-card">
+                <h3>Hvordan findes nøglerne?</h3>
+                <ol>
+                    <li>Vælg to store primtal <b>p</b> og <b>q</b>.</li>
+                    <li>Beregn modulus <b>n = p * q</b>.</li>
+                    <li>Beregn totienten <b>phi = (p-1) * (q-1)</b>.</li>
+                    <li>Vælg <b>e</b> (typisk 65537).</li>
+                    <li>Beregn den private nøgle <b>d</b> så: <b>(d * e) mod phi = 1</b>.</li>
+                </ol>
+            </div>
+
+            <div class="theory-card">
+                <h3>Hvem vælger tallene?</h3>
+                <p>Det er altid <b>Modtageren</b>, der genererer tallene. Modtageren laver både p, q, n, phi, e og d på sin egen computer. Herefter sendes <b>n</b> og <b>e</b> (den offentlige nøgle) til afsenderen, mens <b>d</b>, <b>p</b>, <b>q</b> og <b>phi</b> holdes strengt hemmelige.</p>
+            </div>
+
+            <div class="theory-card">
+                <h3>Sikkerhed & Primtal</h3>
+                <p>Sikkerheden afhænger af <b>faktorisering</b>. Det er let at gange to tal, men næsten umuligt at finde p og q ud fra n, hvis de er store nok. I virkeligheden bruger man primtal med over 300 cifre. Hvis man bruger små primtal, kan en hacker knække koden på et øjeblik.</p>
+            </div>
+
+            <div class="theory-card">
+                <h3>Sammenligning</h3>
                 <table>
                     <tr>
                         <th>Egenskab</th>
@@ -228,14 +246,14 @@
                         <td>To forskellige (Offentlig/Privat)</td>
                     </tr>
                     <tr>
-                        <td>Hovedstyrke</td>
-                        <td>Lynhurtig til store filer</td>
-                        <td>Sikkerhed uden nøgledeling</td>
+                        <td>Hastighed</td>
+                        <td>Meget hurtig</td>
+                        <td>Langsom (tung matematik)</td>
                     </tr>
                     <tr>
-                        <td>Sikkerhed</td>
-                        <td>Lav (nøglen skal deles)</td>
-                        <td>Høj (baseret på svær matematik)</td>
+                        <td>Hovedstyrke</td>
+                        <td>Effektiv til data</td>
+                        <td>Sikkerhed uden nøgledeling</td>
                     </tr>
                 </table>
             </div>
@@ -245,7 +263,7 @@
     <div id="caesarContent" class="tab-content">
         <section>
             <h2 style="color: var(--caesar)">Caesar Simulator</h2>
-            <input type="text" id="cInput" placeholder="Skriv din tekst her...">
+            <input type="text" id="cInput" placeholder="Skriv tekst her...">
             <input type="number" id="cKey" value="3" style="margin-top: 10px;">
             <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-top: 10px;">
                 <button class="btn-caesar" onclick="doCaesar(true)">Krypter</button>
@@ -295,7 +313,7 @@
     function rsaStep1() {
         let pV = BigInt(document.getElementById('pIn').value);
         let qV = BigInt(document.getElementById('qIn').value);
-        if (!isPrime(Number(pV)) || !isPrime(Number(qV))) { alert("Begge tal skal være primtal!"); return; }
+        if (!isPrime(Number(pV)) || !isPrime(Number(qV))) { alert("Brug primtal!"); return; }
         
         n = pV * qV;
         phi = (pV-1n)*(qV-1n);
