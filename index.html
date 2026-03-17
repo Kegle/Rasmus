@@ -41,17 +41,6 @@
             margin-bottom: 30px;
         }
 
-        .purpose-box {
-            background: rgba(56, 189, 248, 0.1);
-            border: 1px solid var(--primary);
-            padding: 15px;
-            border-radius: 10px;
-            margin-top: 15px;
-            font-size: 0.95rem;
-            color: var(--text-dim);
-            text-align: left;
-        }
-
         .tab-container {
             display: flex;
             gap: 5px;
@@ -91,15 +80,6 @@
             border: 1px solid #334155;
         }
 
-        .formula-box {
-            background: rgba(56, 189, 248, 0.08);
-            border-left: 4px solid var(--primary);
-            padding: 20px;
-            margin: 15px 0;
-            border-radius: 0 8px 8px 0;
-            font-size: 0.95rem;
-        }
-
         .code-box {
             background: #000;
             padding: 15px;
@@ -110,19 +90,21 @@
             margin: 10px 0;
         }
 
+        .explanation-text {
+            background: rgba(56, 189, 248, 0.1);
+            border-left: 4px solid var(--primary);
+            padding: 15px;
+            margin-top: 15px;
+            border-radius: 4px;
+            font-size: 0.95rem;
+        }
+
         .hidden { display: none; }
         input, select { width: 100%; padding: 12px; background: #0f172a; border: 1px solid #334155; border-radius: 8px; color: white; box-sizing: border-box; font-size: 1rem; }
         button { color: white; border: none; padding: 14px; border-radius: 8px; font-weight: 600; cursor: pointer; width: 100%; margin-top: 10px; }
         .btn-rsa { background: var(--primary); }
         .btn-caesar { background: var(--caesar); }
-
-        .explanation-text {
-            background: rgba(244, 63, 94, 0.1);
-            border-left: 4px solid var(--caesar);
-            padding: 15px;
-            margin-top: 15px;
-            border-radius: 4px;
-        }
+        .btn-decode { background: #475569; }
     </style>
 </head>
 <body>
@@ -130,20 +112,17 @@
 <div class="container">
     <header>
         <h1>Rasmus' krypterings forklarelser</h1>
-        <div class="purpose-box">
-            <strong>Formål:</strong> Dette projekt er skabt til at formidle og illustrere RSA-kryptering for gymnasieelever, så de kan få en bedre visuel og matematisk forståelse af, hvordan vi sikrer data på internettet.
-        </div>
     </header>
 
     <div class="tab-container">
         <button id="tab1" class="tab-btn active-rsa" onclick="switchTab('rsa')">RSA Simulator</button>
-        <button id="tab2" class="tab-btn" onclick="switchTab('theory')">Teori bag krypteringstyperne</button>
-        <button id="tab3" class="tab-btn" onclick="switchTab('caesar')">Caesar Simulator</button>
+        <button id="tab2" class="tab-btn" onclick="switchTab('theory')">Teori</button>
+        <button id="tab3" class="tab-btn" onclick="switchTab('caesar')">Cæsar Maskine</button>
     </div>
 
     <div id="rsaContent" class="tab-content active">
         <section>
-            <h2 style="color: var(--primary)">Bob: Nøglegenerering</h2>
+            <h2 style="color: var(--primary)">Trin 1: Nøglegenerering</h2>
             <p>Vi starter nu med at vælge to forskellige primtal, P og Q. De to primtal bliver nu ganget sammen til modulus (n), modulus skal resultere minimum 250, så vi er sikre på der ikke mistes noget data under krypteringen.</p>
             
             <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px;">
@@ -170,7 +149,7 @@
 
         <section id="rsaStep2" class="hidden">
             <h2 style="color: var(--primary)">Alice: Kryptering</h2>
-            <p>Indtast din besked herunder for at kryptere den med Bobs offentlige nøgle.</p>
+            <p>Alice skriver sin besked, som bliver lavet om til tal og krypteret med Bobs offentlige nøgle.</p>
             <input type="text" id="rsaMsg" placeholder="Skriv din hemmelige besked...">
             <button class="btn-rsa" onclick="rsaStep2()">Krypter: M^e mod n</button>
             <div id="rsaOut2" class="hidden">
@@ -180,10 +159,47 @@
 
         <section id="rsaStep3" class="hidden">
             <h2 style="color: var(--primary)">Bob: Dekryptering</h2>
-            <p>Her kan Bob bruge sin private nøgle til at få beskeden tilbage.</p>
+            <p>Bob modtager tallene og bruger sin private nøgle til at låse op.</p>
             <button class="btn-rsa" onclick="rsaStep3()">Dekrypter: C^d mod n</button>
             <div id="rsaOut3" class="hidden">
                 <div class="code-box" id="rsaPlain" style="color: white; font-size: 1.2rem;"></div>
+                <div class="explanation-text">
+                    <strong>Hvad skete der?</strong><br>
+                    Da du trykkede på dekrypter, tog systemet de krypterede tal og opløftede dem i Bobs private nøgle (d). Fordi d og e er matematisk forbundet via tallet Phi, vil resultatet altid blive de oprindelige talværdier for bogstaverne, når man tager modulus n. Det er her, RSA's styrke ligger: kun den, der kender d, kan finde vej tilbage til den originale tekst.
+                </div>
+            </div>
+        </section>
+    </div>
+
+    <div id="caesarContent" class="tab-content">
+        <section>
+            <h2 style="color: var(--caesar)">Cæsar's krypterings maskine</h2>
+            <p>Cæsar kryptering er en gammel symmetrisk krypteringsteknik, den blev opfundet af Julius Cæsar for mere end 2000 år siden, den forskyder alle bogstaverne i din sætning med antallet K, k's værdi forskyder så hvert bogstav til højre eller venstre udfra den givne værdi.</p>
+            
+            <div style="border-bottom: 1px solid #334155; padding-bottom: 20px; margin-bottom: 20px;">
+                <h3>Kryptering</h3>
+                <input type="text" id="cInput" placeholder="Indtast tekst der skal krypteres...">
+                <div style="margin-top: 10px;">
+                    <label style="font-size: 0.8rem; color: var(--text-dim);">Vælg forskydning (K):</label>
+                    <input type="number" id="cKeyEnc" value="3">
+                </div>
+                <button class="btn-caesar" onclick="doCaesar(true)">Krypter besked</button>
+                <div id="cOutEnc" class="hidden">
+                    <div class="code-box" id="cResEnc" style="color: white;"></div>
+                </div>
+            </div>
+
+            <div>
+                <h3>Dekryptering</h3>
+                <input type="text" id="cInputDec" placeholder="Indtast kryptotekst der skal dekrypteres...">
+                <div style="margin-top: 10px;">
+                    <label style="font-size: 0.8rem; color: var(--text-dim);">Brug nøgle (K):</label>
+                    <input type="number" id="cKeyDec" value="3">
+                </div>
+                <button class="btn-decode" onclick="doCaesar(false)">Dekrypter besked</button>
+                <div id="cOutDec" class="hidden">
+                    <div class="code-box" id="cResDec" style="color: white;"></div>
+                </div>
             </div>
         </section>
     </div>
@@ -191,38 +207,10 @@
     <div id="theoryContent" class="tab-content">
         <section>
             <h2 style="color: var(--theory)">Teori bag krypteringstyperne</h2>
-            <p>Her kan du læse mere om den matematiske baggrund for kryptering.</p>
+            <p>Her kan du indsætte dine noter om Euklid og primtal.</p>
         </section>
     </div>
 
-    <div id="caesarContent" class="tab-content">
-        <section>
-            <h2 style="color: var(--caesar)">Cæsar's krypterings maskine</h2>
-            <p style="margin-bottom: 20px;">
-                Cæsar kryptering er en gammel symmetrisk krypteringsteknik, den blev opfundet af Julius Cæsar for mere end 2000 år siden, den forskyder alle bogstaverne i din sætning med antallet K, k's værdi forskyder så hvert bogstav til højre eller venstre udfra den givne værdi.
-            </p>
-            <input type="text" id="cInput" placeholder="Skriv tekst her...">
-            <div style="margin-top: 10px;">
-                <label style="font-size: 0.8rem; color: var(--text-dim);">Vælg forskydning (K):</label>
-                <input type="number" id="cKey" value="3">
-            </div>
-            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-top: 10px;">
-                <button class="btn-caesar" onclick="doCaesar(true)">Krypter</button>
-                <button class="btn-caesar" style="background: #475569" onclick="doCaesar(false)">Dekrypter</button>
-            </div>
-            <div id="cOut" class="hidden">
-                <div class="code-box" id="cRes" style="color: white; font-size: 1.2rem;"></div>
-                <div class="explanation-text">
-                    <p id="cDynamicText"></p>
-                    <p style="font-family: monospace; background: rgba(0,0,0,0.3); padding: 10px; border-radius: 5px;">
-                        Brugte formel er <b>C=(P+K) mod 29</b> hvor c er det krypteret bogstavs talværdi, P er den originale bogstavs talværdi, og K er nøglen der fortæller hvor mange pladser det skal forskydes.
-                    </p>
-                </div>
-            </div>
-        </section>
-    </div>
-
-    <footer>&copy; 2026 Rasmus - Formidling af Kryptografi til Gymnasiet</footer>
 </div>
 
 <script>
@@ -266,8 +254,9 @@
         
         document.getElementById('rsaKeys').innerHTML = `
             Modulus (n): <b>${n}</b><br>
-            Offentlig nøgle (e): <b>${e}</b><br>
-            Privat nøgle (d): <b>${d}</b>
+            Phi (φ): <b>${phi}</b><br>
+            Bobs offentlige nøgle (e): <b>${e}</b><br>
+            Bobs private nøgle (d): <b>${d}</b>
         `;
         document.getElementById('rsaOut1').classList.remove('hidden');
         document.getElementById('rsaStep2').classList.remove('hidden');
@@ -276,27 +265,30 @@
     function rsaStep2() {
         let mStr = document.getElementById('rsaMsg').value;
         encrypted = [...mStr].map(c => powerMod(BigInt(c.charCodeAt(0)), e, n));
-        document.getElementById('rsaCipher').innerText = encrypted.join(" ");
+        document.getElementById('rsaCipher').innerText = "Krypteret talstrøm: " + encrypted.join(" ");
         document.getElementById('rsaOut2').classList.remove('hidden');
         document.getElementById('rsaStep3').classList.remove('hidden');
     }
 
     function rsaStep3() {
         let decoded = encrypted.map(c => String.fromCharCode(Number(powerMod(c, d, n)))).join("");
-        document.getElementById('rsaPlain').innerText = decoded;
+        document.getElementById('rsaPlain').innerText = "Besked efter dekryptering: " + decoded;
         document.getElementById('rsaOut3').classList.remove('hidden');
     }
 
     function doCaesar(enc) {
         const alphabet = "abcdefghijklmnopqrstuvwxyzæøå";
-        let txt = document.getElementById('cInput').value;
-        let k = parseInt(document.getElementById('cKey').value);
+        let inputId = enc ? 'cInput' : 'cInputDec';
+        let keyId = enc ? 'cKeyEnc' : 'cKeyDec';
+        let resId = enc ? 'cResEnc' : 'cResDec';
+        let outDiv = enc ? 'cOutEnc' : 'cOutDec';
+
+        let txt = document.getElementById(inputId).value;
+        let k = parseInt(document.getElementById(keyId).value);
         let shift = ((k % 29) + 29) % 29;
-        
-        document.getElementById('cDynamicText').innerText = `Hvert bogstav i sætningen er nu blevet forskudt med ${k} antal.`;
         if (!enc) shift = (29 - shift) % 29;
 
-        document.getElementById('cRes').innerText = [...txt].map(c => {
+        let result = [...txt].map(c => {
             let lowerC = c.toLowerCase();
             let idx = alphabet.indexOf(lowerC);
             if (idx === -1) return c;
@@ -304,7 +296,9 @@
             let resChar = alphabet[newIdx];
             return (c === c.toUpperCase()) ? resChar.toUpperCase() : resChar;
         }).join("");
-        document.getElementById('cOut').classList.remove('hidden');
+
+        document.getElementById(resId).innerText = (enc ? "Krypteret: " : "Dekrypteret: ") + result;
+        document.getElementById(outDiv).classList.remove('hidden');
     }
 </script>
 </body>
