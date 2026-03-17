@@ -27,7 +27,7 @@
         }
 
         .container {
-            max-width: 900px;
+            max-width: 1000px;
             margin: 40px auto;
             padding: 0 20px;
         }
@@ -99,12 +99,22 @@
             font-size: 0.95rem;
         }
 
+        .theory-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+        }
+
         .hidden { display: none; }
         input, select { width: 100%; padding: 12px; background: #0f172a; border: 1px solid #334155; border-radius: 8px; color: white; box-sizing: border-box; font-size: 1rem; }
         button { color: white; border: none; padding: 14px; border-radius: 8px; font-weight: 600; cursor: pointer; width: 100%; margin-top: 10px; }
         .btn-rsa { background: var(--primary); }
         .btn-caesar { background: var(--caesar); }
         .btn-decode { background: #475569; }
+
+        table { width: 100%; border-collapse: collapse; margin-top: 20px; }
+        th, td { text-align: left; padding: 12px; border-bottom: 1px solid #334155; }
+        th { color: var(--theory); }
     </style>
 </head>
 <body>
@@ -116,7 +126,7 @@
 
     <div class="tab-container">
         <button id="tab1" class="tab-btn active-rsa" onclick="switchTab('rsa')">RSA Simulator</button>
-        <button id="tab2" class="tab-btn" onclick="switchTab('theory')">Teori</button>
+        <button id="tab2" class="tab-btn" onclick="switchTab('theory')">Teori & Dokumentation</button>
         <button id="tab3" class="tab-btn" onclick="switchTab('caesar')">Cæsar Maskine</button>
     </div>
 
@@ -128,44 +138,58 @@
             <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px;">
                 <select id="pIn">
                     <option value="17">17</option>
-                    <option value="29">29</option>
+                    <option value="41">41</option>
                     <option value="101">101</option>
+                    <option value="233">233</option>
                     <option value="521">521</option>
+                    <option value="997">997</option>
+                    <option value="7919">7919</option>
                     <option value="104729">104729</option>
                 </select>
                 <select id="qIn">
                     <option value="19">19</option>
-                    <option value="31">31</option>
+                    <option value="43">43</option>
                     <option value="103">103</option>
+                    <option value="239">239</option>
                     <option value="541">541</option>
+                    <option value="1009">1009</option>
+                    <option value="8009">8009</option>
                     <option value="1299709">1299709</option>
                 </select>
             </div>
-            <button class="btn-rsa" onclick="rsaStep1()">Beregn værdier (n, phi, e, d)</button>
+            <button class="btn-rsa" onclick="rsaStep1()">Beregn systemets nøgler</button>
             <div id="rsaOut1" class="hidden">
                 <div class="code-box" id="rsaKeys"></div>
+                <div class="explanation-text">
+                    <strong>Hvad skete der her?</strong><br>
+                    Systemet har beregnet <i>n</i> ($P \times Q$) og fundet <i>Phi</i>. Herefter er den offentlige nøgle (e) og den private nøgle (d) fundet ved hjælp af modulær invers. Uden d kan man ikke læse beskeden!
+                </div>
             </div>
         </section>
 
         <section id="rsaStep2" class="hidden">
             <h2 style="color: var(--primary)">Alice: Kryptering</h2>
-            <p>Alice skriver sin besked, som bliver lavet om til tal og krypteret med Bobs offentlige nøgle.</p>
+            <p>Alice bruger nu Bobs offentlige nøgle (e) og modulus (n) til at kryptere sin tekst.</p>
             <input type="text" id="rsaMsg" placeholder="Skriv din hemmelige besked...">
             <button class="btn-rsa" onclick="rsaStep2()">Krypter: M^e mod n</button>
             <div id="rsaOut2" class="hidden">
                 <div class="code-box" id="rsaCipher"></div>
+                <div class="explanation-text">
+                    <strong>Matematikken bag:</strong><br>
+                    Hvert bogstav er lavet om til en talværdi (M). Alice udregner $C = M^e \pmod{n}$. Dette giver de tal, du ser ovenfor.
+                </div>
             </div>
         </section>
 
         <section id="rsaStep3" class="hidden">
             <h2 style="color: var(--primary)">Bob: Dekryptering</h2>
-            <p>Bob modtager tallene og bruger sin private nøgle til at låse op.</p>
+            <p>Bob bruger sin hemmelige nøgle (d) til at få teksten tilbage.</p>
             <button class="btn-rsa" onclick="rsaStep3()">Dekrypter: C^d mod n</button>
             <div id="rsaOut3" class="hidden">
                 <div class="code-box" id="rsaPlain" style="color: white; font-size: 1.2rem;"></div>
                 <div class="explanation-text">
                     <strong>Hvad skete der?</strong><br>
-                    Da du trykkede på dekrypter, tog systemet de krypterede tal og opløftede dem i Bobs private nøgle (d). Fordi d og e er matematisk forbundet via tallet Phi, vil resultatet altid blive de oprindelige talværdier for bogstaverne, når man tager modulus n. Det er her, RSA's styrke ligger: kun den, der kender d, kan finde vej tilbage til den originale tekst.
+                    Bob tager de krypterede tal (C) og udregner $M = C^d \pmod{n}$. Fordi $d$ og $e$ er matematisk "spejlbilleder" via Phi, dukker den originale talværdi op igen!
                 </div>
             </div>
         </section>
@@ -178,7 +202,7 @@
             
             <div style="border-bottom: 1px solid #334155; padding-bottom: 20px; margin-bottom: 20px;">
                 <h3>Kryptering</h3>
-                <input type="text" id="cInput" placeholder="Indtast tekst der skal krypteres...">
+                <input type="text" id="cInput" placeholder="Indtast tekst...">
                 <div style="margin-top: 10px;">
                     <label style="font-size: 0.8rem; color: var(--text-dim);">Vælg forskydning (K):</label>
                     <input type="number" id="cKeyEnc" value="3">
@@ -186,12 +210,15 @@
                 <button class="btn-caesar" onclick="doCaesar(true)">Krypter besked</button>
                 <div id="cOutEnc" class="hidden">
                     <div class="code-box" id="cResEnc" style="color: white;"></div>
+                    <div class="explanation-text" style="border-left-color: var(--caesar);">
+                        Brugte formel: <b>C = (P + K) mod 29</b>
+                    </div>
                 </div>
             </div>
 
             <div>
                 <h3>Dekryptering</h3>
-                <input type="text" id="cInputDec" placeholder="Indtast kryptotekst der skal dekrypteres...">
+                <input type="text" id="cInputDec" placeholder="Indtast kryptotekst...">
                 <div style="margin-top: 10px;">
                     <label style="font-size: 0.8rem; color: var(--text-dim);">Brug nøgle (K):</label>
                     <input type="number" id="cKeyDec" value="3">
@@ -206,8 +233,49 @@
 
     <div id="theoryContent" class="tab-content">
         <section>
-            <h2 style="color: var(--theory)">Teori bag krypteringstyperne</h2>
-            <p>Her kan du indsætte dine noter om Euklid og primtal.</p>
+            <h2 style="color: var(--theory)">Teoretisk Gennemgang</h2>
+            
+            <div class="theory-grid">
+                <div>
+                    <h3>RSA Variablerne</h3>
+                    <ul>
+                        <li><b>P & Q:</b> To hemmelige primtal. Jo større de er, jo sværere er koden at bryde.</li>
+                        <li><b>n (Modulus):</b> Resultatet af $P \times Q$. Dette tal er offentligt og bruges som "rammen" for krypteringen.</li>
+                        <li><b>Phi ($\phi$):</b> Udregnes som $(P-1) \times (Q-1)$. Bruges kun til at skabe nøglerne.</li>
+                        <li><b>e (Offentlig eksponent):</b> Bruges af Alice til at låse beskeden.</li>
+                        <li><b>d (Privat eksponent):</b> Den magiske nøgle som Bob holder hemmelig.</li>
+                    </ul>
+                </div>
+                <div>
+                    <h3>Formlerne</h3>
+                    <p><b>Cæsar:</b><br>$C = (P + K) \pmod{29}$</p>
+                    <p><b>RSA Kryptering:</b><br>$C = M^e \pmod{n}$</p>
+                    <p><b>RSA Dekryptering:</b><br>$M = C^d \pmod{n}$</p>
+                </div>
+            </div>
+
+            <h3 style="margin-top: 30px; color: var(--theory);">Styrker & Svagheder</h3>
+            <table>
+                <tr>
+                    <th>Metode</th>
+                    <th>Styrker</th>
+                    <th>Svagheder</th>
+                </tr>
+                <tr>
+                    <td><b>Cæsar</b></td>
+                    <td>Meget hurtig og simpel at bruge manuelt.</td>
+                    <td>Meget usikker. Der er kun 28 mulige nøgler (mod 29).</td>
+                </tr>
+                <tr>
+                    <td><b>RSA</b></td>
+                    <td>Ekstremt sikker. Alice og Bob behøver ikke mødes for at udveksle nøgler.</td>
+                    <td>Kræver mange computerkræfter ved store tal.</td>
+                </tr>
+            </table>
+
+            <div class="explanation-text" style="background: rgba(251, 191, 36, 0.1); border-left-color: var(--theory);">
+                <strong>Sammenligning:</strong> Cæsar er en <i>symmetrisk</i> kryptering, fordi man bruger samme nøgle begge veje. RSA er <i>asymmetrisk</i>, fordi man låser med én nøgle (e) og åbner med en anden (d). Det er RSA, der gør, at du sikkert kan skrive dit dankortnummer på nettet i dag!
+            </div>
         </section>
     </div>
 
@@ -246,17 +314,19 @@
     function rsaStep1() {
         let pV = BigInt(document.getElementById('pIn').value);
         let qV = BigInt(document.getElementById('qIn').value);
+        if(pV === qV) { alert("P og Q skal være forskellige!"); return; }
         n = pV * qV;
         phi = (pV-1n)*(qV-1n);
         e = 65537n;
         if (gcd(e, phi) !== 1n) e = 3n;
+        while(gcd(e, phi) !== 1n) e += 2n;
         d = modInverse(e, phi);
         
         document.getElementById('rsaKeys').innerHTML = `
             Modulus (n): <b>${n}</b><br>
             Phi (φ): <b>${phi}</b><br>
-            Bobs offentlige nøgle (e): <b>${e}</b><br>
-            Bobs private nøgle (d): <b>${d}</b>
+            Offentlig nøgle (e): <b>${e}</b><br>
+            Privat nøgle (d): <b>${d}</b>
         `;
         document.getElementById('rsaOut1').classList.remove('hidden');
         document.getElementById('rsaStep2').classList.remove('hidden');
@@ -265,14 +335,14 @@
     function rsaStep2() {
         let mStr = document.getElementById('rsaMsg').value;
         encrypted = [...mStr].map(c => powerMod(BigInt(c.charCodeAt(0)), e, n));
-        document.getElementById('rsaCipher').innerText = "Krypteret talstrøm: " + encrypted.join(" ");
+        document.getElementById('rsaCipher').innerText = encrypted.join(" ");
         document.getElementById('rsaOut2').classList.remove('hidden');
         document.getElementById('rsaStep3').classList.remove('hidden');
     }
 
     function rsaStep3() {
         let decoded = encrypted.map(c => String.fromCharCode(Number(powerMod(c, d, n)))).join("");
-        document.getElementById('rsaPlain').innerText = "Besked efter dekryptering: " + decoded;
+        document.getElementById('rsaPlain').innerText = decoded;
         document.getElementById('rsaOut3').classList.remove('hidden');
     }
 
@@ -297,7 +367,7 @@
             return (c === c.toUpperCase()) ? resChar.toUpperCase() : resChar;
         }).join("");
 
-        document.getElementById(resId).innerText = (enc ? "Krypteret: " : "Dekrypteret: ") + result;
+        document.getElementById(resId).innerText = result;
         document.getElementById(outDiv).classList.remove('hidden');
     }
 </script>
