@@ -22,7 +22,7 @@
 
 body{
 font-family:'Inter',system-ui;
-background:var(--bg);
+background-color:var(--bg);
 color:var(--text);
 margin:0;
 }
@@ -35,7 +35,7 @@ padding:0 20px;
 
 header{
 text-align:center;
-padding:40px;
+padding:40px 20px;
 background:linear-gradient(135deg,#1e293b,#0f172a);
 border-bottom:3px solid var(--primary);
 border-radius:20px;
@@ -46,25 +46,25 @@ margin-bottom:30px;
 display:flex;
 flex-wrap:wrap;
 gap:5px;
+margin-bottom:25px;
 background:rgba(255,255,255,0.05);
 padding:5px;
 border-radius:12px;
-margin-bottom:25px;
 }
 
 .tab-btn{
 flex:1;
 padding:12px;
+background:transparent;
 border:none;
 border-radius:8px;
-background:transparent;
-color:var(--text-dim);
-cursor:pointer;
 font-weight:600;
+cursor:pointer;
+color:var(--text-dim);
 }
 
-.tab-btn.active-rsa{background:var(--primary);color:#000;}
-.tab-btn.active-theory{background:var(--theory);color:#000;}
+.tab-btn.active-rsa{background:var(--primary);color:black;}
+.tab-btn.active-theory{background:var(--theory);color:black;}
 .tab-btn.active-caesar{background:var(--caesar);}
 .tab-btn.active-quiz{background:var(--quiz);}
 .tab-btn.active-video{background:var(--video);}
@@ -78,14 +78,6 @@ padding:30px;
 border-radius:15px;
 border:1px solid #334155;
 margin-bottom:25px;
-}
-
-.code-box{
-background:#000;
-padding:15px;
-border-radius:8px;
-color:#10b981;
-font-family:monospace;
 }
 
 input,select{
@@ -124,10 +116,10 @@ border-radius:10px;
 .quiz-option{
 display:block;
 margin:10px 0;
-padding:10px;
-border-radius:6px;
-border:1px solid #334155;
 cursor:pointer;
+padding:10px;
+border-radius:5px;
+border:1px solid #334155;
 }
 
 .quiz-option:hover{
@@ -145,14 +137,22 @@ border-color:#f43f5e !important;
 }
 
 #scoreDisplay{
-font-size:1.4rem;
+font-size:1.5rem;
 text-align:center;
-margin-top:20px;
 color:var(--quiz);
 font-weight:bold;
+margin-top:20px;
 }
 
 .hidden{display:none;}
+
+.code-box{
+background:#000;
+padding:15px;
+border-radius:8px;
+font-family:monospace;
+color:#10b981;
+}
 </style>
 </head>
 
@@ -172,7 +172,79 @@ font-weight:bold;
 <button id="tab-video" class="tab-btn" onclick="switchTab('video')">Video</button>
 </div>
 
-<!-- QUIZ -->
+<div id="rsaContent" class="tab-content active">
+<section>
+<h2 style="color:var(--primary)">RSA Simulator</h2>
+<p>Her kan du simulere en simpel RSA kryptering.</p>
+
+<select id="pIn">
+<option value="17">17</option>
+<option value="101">101</option>
+<option value="521">521</option>
+</select>
+
+<select id="qIn">
+<option value="19">19</option>
+<option value="103">103</option>
+<option value="541">541</option>
+</select>
+
+<button class="btn-rsa" onclick="rsaStep1()">Beregn nøgler</button>
+
+<div id="rsaOut1" class="hidden">
+<div class="code-box" id="rsaKeys"></div>
+</div>
+
+<input type="text" id="rsaMsg" placeholder="Skriv besked">
+<button class="btn-rsa" onclick="rsaStep2()">Krypter</button>
+
+<div id="rsaOut2" class="hidden">
+<div class="code-box" id="rsaCipher"></div>
+</div>
+
+<button class="btn-rsa" onclick="rsaStep3()">Dekrypter</button>
+
+<div id="rsaOut3" class="hidden">
+<div class="code-box" id="rsaPlain"></div>
+</div>
+
+</section>
+</div>
+
+<div id="theoryContent" class="tab-content">
+<section>
+<h2 style="color:var(--theory)">Teori</h2>
+<p>RSA bygger på primtal og primtalsfaktorisering. To store primtal P og Q ganges sammen til n.</p>
+<p>Det er let at gange dem, men meget svært at finde dem igen ud fra n.</p>
+</section>
+</div>
+
+<div id="caesarContent" class="tab-content">
+<section>
+
+<h2 style="color:var(--caesar)">Cæsar Maskine</h2>
+
+<input type="text" id="cInput" placeholder="Tekst">
+<input type="number" id="cKeyEnc" value="3">
+
+<button class="btn-caesar" onclick="doCaesar(true)">Krypter</button>
+
+<div id="cOutEnc" class="hidden">
+<div class="code-box" id="cResEnc"></div>
+</div>
+
+<input type="text" id="cInputDec" placeholder="Kryptotekst">
+<input type="number" id="cKeyDec" value="3">
+
+<button class="btn-decode" onclick="doCaesar(false)">Dekrypter</button>
+
+<div id="cOutDec" class="hidden">
+<div class="code-box" id="cResDec"></div>
+</div>
+
+</section>
+</div>
+
 <div id="quizContent" class="tab-content">
 
 <section>
@@ -189,10 +261,10 @@ font-weight:bold;
 </div>
 
 <div class="quiz-q" data-correct="2">
-<p><b>2. Hvilken matematik bruges i Cæsar-kryptering?</b></p>
+<p><b>2. Hvilken matematik bruges i Cæsar kryptering?</b></p>
 <div class="quiz-option" onclick="handleQuiz(this,0)">Primtalsfaktorisering</div>
 <div class="quiz-option" onclick="handleQuiz(this,1)">Differentialregning</div>
-<div class="quiz-option" onclick="handleQuiz(this,2)">Modulo-regning</div>
+<div class="quiz-option" onclick="handleQuiz(this,2)">Modulo</div>
 </div>
 
 <div class="quiz-q" data-correct="1">
@@ -209,56 +281,49 @@ font-weight:bold;
 <div class="quiz-option" onclick="handleQuiz(this,2)">Uendeligt</div>
 </div>
 
-<div class="quiz-q" data-correct="2">
-<p><b>5. Hvad sker hvis n i RSA er for lille?</b></p>
-<div class="quiz-option" onclick="handleQuiz(this,0)">Intet</div>
-<div class="quiz-option" onclick="handleQuiz(this,1)">Det bliver hurtigere</div>
-<div class="quiz-option" onclick="handleQuiz(this,2)">Data kan gå tabt</div>
-</div>
-
 <div class="quiz-q" data-correct="1">
-<p><b>6. Hvem opfandt Cæsar kryptering?</b></p>
-<div class="quiz-option" onclick="handleQuiz(this,0)">Alan Turing</div>
-<div class="quiz-option" onclick="handleQuiz(this,1)">Julius Cæsar</div>
-<div class="quiz-option" onclick="handleQuiz(this,2)">Newton</div>
-</div>
-
-<div class="quiz-q" data-correct="1">
-<p><b>7. Hvad er et primtal?</b></p>
+<p><b>5. Hvad er et primtal?</b></p>
 <div class="quiz-option" onclick="handleQuiz(this,0)">Tal der kan deles med mange tal</div>
 <div class="quiz-option" onclick="handleQuiz(this,1)">Kun deles med 1 og sig selv</div>
 <div class="quiz-option" onclick="handleQuiz(this,2)">Alle ulige tal</div>
 </div>
 
 <div class="quiz-q" data-correct="2">
-<p><b>8. Hvorfor bruger RSA primtal?</b></p>
-<div class="quiz-option" onclick="handleQuiz(this,0)">For at spare plads</div>
-<div class="quiz-option" onclick="handleQuiz(this,1)">For hurtigere internet</div>
+<p><b>6. Hvorfor bruges primtal i RSA?</b></p>
+<div class="quiz-option" onclick="handleQuiz(this,0)">For hurtigere internet</div>
+<div class="quiz-option" onclick="handleQuiz(this,1)">For kortere beskeder</div>
 <div class="quiz-option" onclick="handleQuiz(this,2)">Fordi faktorisering er svært</div>
 </div>
 
 <div class="quiz-q" data-correct="0">
-<p><b>9. Hvilket tal er et primtal?</b></p>
+<p><b>7. Hvilket tal er et primtal?</b></p>
 <div class="quiz-option" onclick="handleQuiz(this,0)">17</div>
 <div class="quiz-option" onclick="handleQuiz(this,1)">21</div>
 <div class="quiz-option" onclick="handleQuiz(this,2)">27</div>
 </div>
 
 <div class="quiz-q" data-correct="2">
-<p><b>10. Hvad betyder "mod n"?</b></p>
-<div class="quiz-option" onclick="handleQuiz(this,0)">Divider med n</div>
-<div class="quiz-option" onclick="handleQuiz(this,1)">Gang med n</div>
-<div class="quiz-option" onclick="handleQuiz(this,2)">Tag resten efter division</div>
+<p><b>8. Hvad betyder mod n?</b></p>
+<div class="quiz-option" onclick="handleQuiz(this,0)">Divider</div>
+<div class="quiz-option" onclick="handleQuiz(this,1)">Gang</div>
+<div class="quiz-option" onclick="handleQuiz(this,2)">Rest efter division</div>
 </div>
 
 </div>
 
-<div id="scoreDisplay">Score: 0 / 10</div>
+<div id="scoreDisplay">Score: 0 / 8</div>
 
-<button class="btn-quiz" onclick="location.reload()">Prøv igen</button>
+<button class="btn-quiz" onclick="location.reload()">Nulstil quiz</button>
 
 </section>
 
+</div>
+
+<div id="videoContent" class="tab-content">
+<section>
+<h2 style="color:var(--video)">Video</h2>
+<p>Her kan du indsætte videoer om kryptografi.</p>
+</section>
 </div>
 
 </div>
@@ -268,14 +333,12 @@ font-weight:bold;
 function switchTab(name){
 document.querySelectorAll('.tab-content').forEach(c=>c.classList.remove('active'));
 document.querySelectorAll('.tab-btn').forEach(b=>b.classList.remove('active-rsa','active-theory','active-caesar','active-quiz','active-video'));
-
 document.getElementById(name+'Content').classList.add('active');
 document.getElementById('tab-'+name).classList.add('active-'+name);
 }
 
 let score=0;
-let questionsAnswered=0;
-const totalQuestions=10;
+const totalQuestions=8;
 
 function handleQuiz(element,optionIndex){
 
@@ -298,11 +361,90 @@ element.classList.add("wrong");
 options[correctIndex].classList.add("correct");
 }
 
-questionsAnswered++;
+document.getElementById("scoreDisplay").innerText=`Score: ${score} / ${totalQuestions}`;
 
-document.getElementById("scoreDisplay").innerText=
-`Score: ${score} / ${totalQuestions}`;
+}
 
+function gcd(a,b){return b===0n?a:gcd(b,a%b)}
+
+function modInverse(a,m){
+let m0=m,x0=0n,x1=1n
+while(a>1n){
+let q=a/m
+let t=m
+m=a%m
+a=t
+t=x0
+x0=x1-q*x0
+x1=t
+}
+return x1<0n?x1+m0:x1
+}
+
+function powerMod(base,exp,mod){
+let res=1n
+base%=mod
+while(exp>0n){
+if(exp%2n===1n)res=(res*base)%mod
+base=(base*base)%mod
+exp/=2n
+}
+return res
+}
+
+let n,e,d,phi,encrypted=[]
+
+function rsaStep1(){
+let pV=BigInt(document.getElementById('pIn').value)
+let qV=BigInt(document.getElementById('qIn').value)
+n=pV*qV
+phi=(pV-1n)*(qV-1n)
+e=65537n
+if(gcd(e,phi)!==1n)e=3n
+while(gcd(e,phi)!==1n)e+=2n
+d=modInverse(e,phi)
+
+document.getElementById('rsaKeys').innerHTML=`n:${n} | e:${e} | d:${d}`
+document.getElementById('rsaOut1').classList.remove('hidden')
+}
+
+function rsaStep2(){
+let msg=document.getElementById('rsaMsg').value
+encrypted=[...msg].map(c=>powerMod(BigInt(c.charCodeAt(0)),e,n))
+document.getElementById('rsaCipher').innerText=encrypted.join(" ")
+document.getElementById('rsaOut2').classList.remove('hidden')
+}
+
+function rsaStep3(){
+let decoded=encrypted.map(c=>String.fromCharCode(Number(powerMod(c,d,n)))).join("")
+document.getElementById('rsaPlain').innerText=decoded
+document.getElementById('rsaOut3').classList.remove('hidden')
+}
+
+function doCaesar(enc){
+const alphabet="abcdefghijklmnopqrstuvwxyzæøå"
+
+let inputId=enc?'cInput':'cInputDec'
+let keyId=enc?'cKeyEnc':'cKeyDec'
+let resId=enc?'cResEnc':'cResDec'
+
+let txt=document.getElementById(inputId).value
+let k=parseInt(document.getElementById(keyId).value)
+
+let shift=((k%29)+29)%29
+if(!enc)shift=(29-shift)%29
+
+let result=[...txt].map(c=>{
+let lower=c.toLowerCase()
+let idx=alphabet.indexOf(lower)
+if(idx===-1)return c
+let newIdx=(idx+shift)%29
+let r=alphabet[newIdx]
+return c===c.toUpperCase()?r.toUpperCase():r
+}).join("")
+
+document.getElementById(resId).innerText=result
+document.getElementById(enc?'cOutEnc':'cOutDec').classList.remove('hidden')
 }
 
 </script>
