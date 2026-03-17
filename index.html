@@ -100,17 +100,6 @@
             font-size: 0.95rem;
         }
 
-        .theory-card {
-            background: rgba(255,255,255,0.03);
-            border: 1px solid #475569;
-            padding: 20px;
-            border-radius: 12px;
-            margin-bottom: 20px;
-        }
-
-        .theory-card h3 { margin-top: 0; color: var(--theory); border-bottom: 1px solid #475569; padding-bottom: 10px; }
-        .theory-card h4 { color: var(--accent); margin-bottom: 5px; margin-top: 15px; }
-
         .code-box {
             background: #000;
             padding: 15px;
@@ -127,10 +116,6 @@
         .btn-rsa { background: var(--primary); }
         .btn-caesar { background: var(--caesar); }
 
-        table { width: 100%; border-collapse: collapse; margin-top: 15px; font-size: 0.9rem; }
-        th, td { border: 1px solid #475569; padding: 12px; text-align: left; }
-        th { background: rgba(255,255,255,0.1); color: var(--primary); }
-
         .explanation-text {
             background: rgba(244, 63, 94, 0.1);
             border-left: 4px solid var(--caesar);
@@ -138,6 +123,18 @@
             margin-top: 15px;
             border-radius: 4px;
         }
+
+        .alice-bob-tag {
+            display: inline-block;
+            padding: 2px 8px;
+            border-radius: 4px;
+            font-size: 0.8rem;
+            font-weight: bold;
+            margin-bottom: 5px;
+            text-transform: uppercase;
+        }
+        .tag-alice { background: #ec4899; color: white; }
+        .tag-bob { background: #3b82f6; color: white; }
     </style>
 </head>
 <body>
@@ -158,47 +155,44 @@
 
     <div id="rsaContent" class="tab-content active">
         <section>
+            <span class="alice-bob-tag tag-bob">Bob (Modtager)</span>
             <h2 style="color: var(--primary)">Trin 1: Nøglegenerering</h2>
-            <p>Vi starter nu med at vælge primtal der giver et samlet resultat på over 250, så vi ikke mister noget data under modulus beregning.</p>
+            <p>Vi starter nu med at vælge to forskellige primtal, P og Q. De to primtal bliver nu ganget sammen til modulus (n), modulus skal resultere minimum 250, så vi er sikre på der ikke mistes noget data under krypteringen.</p>
+            
             <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px;">
                 <div>
-                    <label style="font-size: 0.8rem; color: var(--text-dim);">Vælg primtal p:</label>
+                    <label style="font-size: 0.8rem; color: var(--text-dim);">Vælg primtal P:</label>
                     <select id="pIn">
                         <option value="17">17</option>
-                        <option value="19">19</option>
-                        <option value="23">23</option>
                         <option value="29">29</option>
-                        <option value="31">31</option>
+                        <option value="101">101</option>
+                        <option value="521">521</option>
+                        <option value="104729">104729</option>
                     </select>
                 </div>
                 <div>
-                    <label style="font-size: 0.8rem; color: var(--text-dim);">Vælg primtal q:</label>
+                    <label style="font-size: 0.8rem; color: var(--text-dim);">Vælg primtal Q:</label>
                     <select id="qIn">
-                        <option value="13">13</option>
-                        <option value="17">17</option>
                         <option value="19">19</option>
-                        <option value="23">23</option>
-                        <option value="29">29</option>
+                        <option value="31">31</option>
+                        <option value="103">103</option>
+                        <option value="541">541</option>
+                        <option value="1299709">1299709</option>
                     </select>
                 </div>
             </div>
             <button class="btn-rsa" onclick="rsaStep1()">Beregn værdier (n, phi, e, d)</button>
             <div id="rsaOut1" class="hidden">
-                <div class="formula-box">
-                    <strong>Hvad skete der lige?</strong><br>
-                    1. <b>n (Modulus)</b> findes ved at gange p og q. Dette tal er offentligt.<br>
-                    2. <b>phi (Totient)</b> beregnes som (p-1)*(q-1). Dette tal bruges kun til at finde nøglerne og holdes hemmeligt.<br>
-                    3. <b>e (Offentlig eksponent)</b> er sat til <b>65537</b>. Det vælges, fordi det er et primtal (2^16 + 1), som gør kryptering lynhurtig for computere.<br>
-                    4. <b>d (Privat nøgle)</b> er den "multiplikative inverse" af e. Det betyder, at d er det tal, der præcis ophæver e, når vi regner med "mod phi".
-                </div>
+                <div class="formula-box" id="modulusWarning"></div>
                 <div class="code-box" id="rsaKeys"></div>
             </div>
         </section>
 
         <section id="rsaStep2" class="hidden">
-            <h2 style="color: var(--primary)">Trin 2: Kryptering (Afsender)</h2>
-            <p>Afsenderen tager beskeden (M), din eksponent (e) og din modulus (n).</p>
-            <input type="text" id="rsaMsg" placeholder="Skriv din hemmelige besked...">
+            <span class="alice-bob-tag tag-alice">Alice (Afsender)</span>
+            <h2 style="color: var(--primary)">Trin 2: Kryptering</h2>
+            <p>Alice tager beskeden (M), din offentlige eksponent (e) og din modulus (n) for at låse beskeden.</p>
+            <input type="text" id="rsaMsg" placeholder="Skriv din hemmelige besked (virker med æ, ø, å)...">
             <button class="btn-rsa" onclick="rsaStep2()">Krypter: M^e mod n</button>
             <div id="rsaOut2" class="hidden">
                 <div class="code-box" id="rsaCipher"></div>
@@ -206,8 +200,9 @@
         </section>
 
         <section id="rsaStep3" class="hidden">
-            <h2 style="color: var(--primary)">Trin 3: Dekryptering (Modtager)</h2>
-            <p>Modtageren bruger den hemmelige nøgle (d) til at få beskeden tilbage.</p>
+            <span class="alice-bob-tag tag-bob">Bob (Modtager)</span>
+            <h2 style="color: var(--primary)">Trin 3: Dekryptering</h2>
+            <p>Bob bruger sin hemmelige private nøgle (d) til at låse Alice's besked op igen.</p>
             <button class="btn-rsa" onclick="rsaStep3()">Dekrypter: C^d mod n</button>
             <div id="rsaOut3" class="hidden">
                 <div class="code-box" id="rsaPlain" style="color: white; font-size: 1.2rem;"></div>
@@ -217,14 +212,12 @@
 
     <div id="theoryContent" class="tab-content">
         <section>
-            <h2 style="color: var(--theory)">Symmetrisk vs. Asymmetrisk</h2>
-            <div class="theory-card">
-                <h3>Symmetrisk (Caesar)</h3>
-                <p>I symmetrisk kryptering bruger man den samme nøgle til både at låse og låse op. Caesar-algoritmen rykker bogstaverne i alfabetet et vist antal pladser (f.eks. nøgle = 3).</p>
+            <h2 style="color: var(--theory)">Teori & Begreber</h2>
+            <div class="formula-box" style="border-left-color: var(--theory);">
+                <strong>Aritmetikkens Fundamentalsætning:</strong> Ethvert naturligt tal større end 1 kan skrives som et unikt produkt af primtal. Det er dette "fingeraftryk", der gør RSA sikkert.
             </div>
-            <div class="theory-card">
-                <h3>Asymmetrisk (RSA)</h3>
-                <p>RSA bruger to forskellige nøgler (Offentlig/Privat). Det løser problemet med at skulle udveksle hemmelige nøgler over usikre forbindelser.</p>
+            <div class="formula-box" style="border-left-color: var(--theory);">
+                <strong>Euklids bevis:</strong> Der findes uendeligt mange primtal. Dette sikrer, at vi aldrig løber tør for nye nøgler.
             </div>
         </section>
     </div>
@@ -232,9 +225,12 @@
     <div id="caesarContent" class="tab-content">
         <section>
             <h2 style="color: var(--caesar)">Caesar Simulator</h2>
-            <input type="text" id="cInput" placeholder="Skriv tekst her...">
+            <p style="font-style: italic; color: var(--text-dim); margin-bottom: 20px;">
+                Cæsar kryptering er en gammel symmetrisk krypteringsteknik der forskyder bogstaverne K antal pladser til højre eller venstre.
+            </p>
+            <input type="text" id="cInput" placeholder="Skriv tekst her (æ, ø, å understøttes)...">
             <div style="margin-top: 10px;">
-                <label style="font-size: 0.8rem; color: var(--text-dim);">Vælg forskydning (nøgle x):</label>
+                <label style="font-size: 0.8rem; color: var(--text-dim);">Vælg forskydning (nøgle K):</label>
                 <input type="number" id="cKey" value="3">
             </div>
             <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-top: 10px;">
@@ -246,7 +242,7 @@
                 <div class="explanation-text">
                     <p id="cDynamicText"></p>
                     <p style="font-family: monospace; background: rgba(0,0,0,0.3); padding: 10px; border-radius: 5px;">
-                        Brugte formel er <b>C=(P+K) mod 26</b> hvor C er det krypteret bogstavs talværdi, P er den originale bogstavs talværdi, og K er nøglen der fortæller hvor mange pladser det skal forskydes.
+                        Brugte formel er <b>C=(P+K) mod 29</b> hvor C er det krypteret bogstavs talværdi, P er den originale bogstavs talværdi, og K er nøglen.
                     </p>
                 </div>
             </div>
@@ -267,7 +263,6 @@
     let n, e, d, phi, encrypted = [];
 
     function gcd(a, b) { return b === 0n ? a : gcd(b, a % b); }
-    
     function modInverse(a, m) {
         let m0 = m, x0 = 0n, x1 = 1n;
         while (a > 1n) {
@@ -290,18 +285,25 @@
     function rsaStep1() {
         let pV = BigInt(document.getElementById('pIn').value);
         let qV = BigInt(document.getElementById('qIn').value);
-        
         n = pV * qV;
         phi = (pV-1n)*(qV-1n);
         e = 65537n;
         if (gcd(e, phi) !== 1n) e = 3n;
         d = modInverse(e, phi);
         
+        let warnBox = document.getElementById('modulusWarning');
+        if (n < 250n) {
+            warnBox.innerHTML = `⚠️ <b>Advarsel:</b> Modulus (n) er kun ${n}. Vælg større tal for at sikre æ, ø og å!`;
+            warnBox.style.color = "#f43f5e";
+        } else {
+            warnBox.innerHTML = `✅ <b>Succes:</b> Modulus (n) er ${n}. Alice kan nu sikkert sende alle danske bogstaver.`;
+            warnBox.style.color = "#38bdf8";
+        }
+
         document.getElementById('rsaKeys').innerHTML = `
             Modulus (n): <b>${n}</b><br>
-            Totient (phi): <b>${phi}</b><br>
-            Eksponent (e): <b>${e}</b><br>
-            Privat nøgle (d): <b>${d}</b>
+            Bobs offentlige nøgle (e): <b>${e}</b><br>
+            Bobs private nøgle (d): <b>${d}</b>
         `;
         document.getElementById('rsaOut1').classList.remove('hidden');
         document.getElementById('rsaStep2').classList.remove('hidden');
@@ -309,32 +311,36 @@
 
     function rsaStep2() {
         let mStr = document.getElementById('rsaMsg').value;
+        if (!mStr) { alert("Alice skal skrive en besked!"); return; }
         encrypted = [...mStr].map(c => powerMod(BigInt(c.charCodeAt(0)), e, n));
-        document.getElementById('rsaCipher').innerText = encrypted.join(" ");
+        document.getElementById('rsaCipher').innerText = "Alice sender (krypteret): " + encrypted.join(" ");
         document.getElementById('rsaOut2').classList.remove('hidden');
         document.getElementById('rsaStep3').classList.remove('hidden');
     }
 
     function rsaStep3() {
         let decoded = encrypted.map(c => String.fromCharCode(Number(powerMod(c, d, n)))).join("");
-        document.getElementById('rsaPlain').innerText = decoded;
+        document.getElementById('rsaPlain').innerText = "Bob læser: " + decoded;
         document.getElementById('rsaOut3').classList.remove('hidden');
     }
 
     function doCaesar(enc) {
+        const alphabet = "abcdefghijklmnopqrstuvwxyzæøå";
         let txt = document.getElementById('cInput').value;
         let k = parseInt(document.getElementById('cKey').value);
-        let shift = ((k % 26) + 26) % 26;
+        let shift = ((k % 29) + 29) % 29;
         
         document.getElementById('cDynamicText').innerText = `Hvert bogstav i sætningen er nu blevet forskudt med ${k} antal pladser.`;
-        
-        if (!enc) shift = (26 - shift) % 26;
-        
+        if (!enc) shift = (29 - shift) % 29;
+
         document.getElementById('cRes').innerText = [...txt].map(c => {
-            let code = c.charCodeAt(0);
-            if (code >= 65 && code <= 90) return String.fromCharCode(((code - 65 + shift) % 26) + 65);
-            if (code >= 97 && code <= 122) return String.fromCharCode(((code - 97 + shift) % 26) + 97);
-            return c;
+            let lowerC = c.toLowerCase();
+            let idx = alphabet.indexOf(lowerC);
+            if (idx === -1) return c;
+            
+            let newIdx = (idx + shift) % 29;
+            let resChar = alphabet[newIdx];
+            return (c === c.toUpperCase()) ? resChar.toUpperCase() : resChar;
         }).join("");
         document.getElementById('cOut').classList.remove('hidden');
     }
