@@ -13,6 +13,7 @@
             --accent: #2dd4bf;
             --caesar: #f43f5e;
             --theory: #fbbf24;
+            --video: #10b981;
             --text: #f1f5f9;
             --text-dim: #94a3b8;
         }
@@ -66,6 +67,7 @@
         .tab-btn.active-rsa { background: var(--primary); color: var(--bg); }
         .tab-btn.active-theory { background: var(--theory); color: var(--bg); }
         .tab-btn.active-caesar { background: var(--caesar); color: var(--bg); }
+        .tab-btn.active-video { background: var(--video); color: var(--bg); }
 
         .tab-content { display: none; }
         .tab-content.active { display: block; animation: fadeIn 0.4s ease; }
@@ -128,6 +130,7 @@
         <button id="tab1" class="tab-btn active-rsa" onclick="switchTab('rsa')">RSA Simulator</button>
         <button id="tab2" class="tab-btn" onclick="switchTab('theory')">Teori & Dokumentation</button>
         <button id="tab3" class="tab-btn" onclick="switchTab('caesar')">Cæsar Maskine</button>
+        <button id="tab4" class="tab-btn" onclick="switchTab('video')">Grundlæggende videoer</button>
     </div>
 
     <div id="rsaContent" class="tab-content active">
@@ -162,7 +165,7 @@
                 <div class="code-box" id="rsaKeys"></div>
                 <div class="explanation-text">
                     <strong>Hvad skete der her?</strong><br>
-                    Systemet har beregnet <i>n</i> ($P \times Q$) og fundet <i>Phi</i>. Herefter er den offentlige nøgle (e) og den private nøgle (d) fundet ved hjælp af modulær invers. Uden d kan man ikke læse beskeden!
+                    Systemet har beregnet n (P x Q) og fundet Phi. Herefter er den offentlige nøgle (e) og den private nøgle (d) fundet ved hjælp af modulær invers. Uden d kan man ikke læse beskeden!
                 </div>
             </div>
         </section>
@@ -176,7 +179,7 @@
                 <div class="code-box" id="rsaCipher"></div>
                 <div class="explanation-text">
                     <strong>Matematikken bag:</strong><br>
-                    Hvert bogstav er lavet om til en talværdi (M). Alice udregner $C = M^e \pmod{n}$. Dette giver de tal, du ser ovenfor.
+                    Hvert bogstav er lavet om til en talværdi (M). Alice udregner C = M^e mod n. Dette giver de tal, du ser ovenfor.
                 </div>
             </div>
         </section>
@@ -189,7 +192,7 @@
                 <div class="code-box" id="rsaPlain" style="color: white; font-size: 1.2rem;"></div>
                 <div class="explanation-text">
                     <strong>Hvad skete der?</strong><br>
-                    Bob tager de krypterede tal (C) og udregner $M = C^d \pmod{n}$. Fordi $d$ og $e$ er matematisk "spejlbilleder" via Phi, dukker den originale talværdi op igen!
+                    Bob tager de krypterede tal (C) og udregner M = C^d mod n. Fordi d og e er matematisk "spejlbilleder" via Phi, dukker den originale talværdi op igen!
                 </div>
             </div>
         </section>
@@ -240,17 +243,17 @@
                     <h3>RSA Variablerne</h3>
                     <ul>
                         <li><b>P & Q:</b> To hemmelige primtal. Jo større de er, jo sværere er koden at bryde.</li>
-                        <li><b>n (Modulus):</b> Resultatet af $P \times Q$. Dette tal er offentligt og bruges som "rammen" for krypteringen.</li>
-                        <li><b>Phi ($\phi$):</b> Udregnes som $(P-1) \times (Q-1)$. Bruges kun til at skabe nøglerne.</li>
+                        <li><b>n (Modulus):</b> Resultatet af P x Q. Dette tal er offentligt og bruges som "rammen" for krypteringen.</li>
+                        <li><b>Phi:</b> Udregnes som (P-1) x (Q-1). Bruges kun til at skabe nøglerne.</li>
                         <li><b>e (Offentlig eksponent):</b> Bruges af Alice til at låse beskeden.</li>
                         <li><b>d (Privat eksponent):</b> Den magiske nøgle som Bob holder hemmelig.</li>
                     </ul>
                 </div>
                 <div>
                     <h3>Formlerne</h3>
-                    <p><b>Cæsar:</b><br>$C = (P + K) \pmod{29}$</p>
-                    <p><b>RSA Kryptering:</b><br>$C = M^e \pmod{n}$</p>
-                    <p><b>RSA Dekryptering:</b><br>$M = C^d \pmod{n}$</p>
+                    <p><b>Cæsar:</b><br>C = (P + K) mod 29</p>
+                    <p><b>RSA Kryptering:</b><br>C = M^e mod n</p>
+                    <p><b>RSA Dekryptering:</b><br>M = C^d mod n</p>
                 </div>
             </div>
 
@@ -279,14 +282,27 @@
         </section>
     </div>
 
+    <div id="videoContent" class="tab-content">
+        <section>
+            <h2 style="color: var(--video)">Grundlæggende videoer</h2>
+            <p>Her kan du indsætte dine forklarende videoer om kryptografi.</p>
+            <div style="border: 2px dashed #334155; height: 300px; display: flex; align-items: center; justify-content: center; border-radius: 15px;">
+                <p style="color: var(--text-dim)">Video-afspiller placeholder - her kan du indsætte din kode senere.</p>
+            </div>
+        </section>
+    </div>
+
 </div>
 
 <script>
     function switchTab(name) {
         document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
-        document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active-rsa', 'active-theory', 'active-caesar'));
+        document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active-rsa', 'active-theory', 'active-caesar', 'active-video'));
         document.getElementById(name + 'Content').classList.add('active');
-        document.getElementById('tab' + (name==='rsa'?'1':name==='theory'?'2':'3')).classList.add('active-'+name);
+        
+        // Finder den rigtige knap og tilføjer den korrekte farve-klasse
+        let tabId = (name === 'rsa' ? 'tab1' : name === 'theory' ? 'tab2' : name === 'caesar' ? 'tab3' : 'tab4');
+        document.getElementById(tabId).classList.add('active-' + name);
     }
 
     let n, e, d, phi, encrypted = [];
