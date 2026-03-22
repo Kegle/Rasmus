@@ -117,6 +117,25 @@
         table { width: 100%; border-collapse: collapse; margin-top: 20px; }
         th, td { text-align: left; padding: 12px; border-bottom: 1px solid #334155; }
         th { color: var(--theory); }
+
+        /* Video container til at gøre YouTube-afspilleren responsiv */
+        .video-container {
+            position: relative;
+            padding-bottom: 56.25%; /* 16:9 format */
+            height: 0;
+            overflow: hidden;
+            border-radius: 15px;
+            background: #000;
+        }
+
+        .video-container iframe {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            border: none;
+        }
     </style>
 </head>
 <body>
@@ -285,9 +304,19 @@
     <div id="videoContent" class="tab-content">
         <section>
             <h2 style="color: var(--video)">Grundlæggende videoer</h2>
-            <p>Her kan du indsætte dine forklarende videoer om kryptografi.</p>
-            <div style="border: 2px dashed #334155; height: 300px; display: flex; align-items: center; justify-content: center; border-radius: 15px;">
-                <p style="color: var(--text-dim)">Video-afspiller placeholder - her kan du indsætte din kode senere.</p>
+            <p>Herunder kan du se en dybdegående forklaring af RSA-algoritmen, som understøtter matematikken bag simulatoren.</p>
+            
+            <div class="video-container">
+                <iframe 
+                    src="https://www.youtube.com/embed/t1rEAY3re1w" 
+                    title="YouTube video player" 
+                    allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" 
+                    allowfullscreen>
+                </iframe>
+            </div>
+            
+            <div class="explanation-text" style="border-left-color: var(--video); margin-top: 20px;">
+                <strong>Tip:</strong> Videoen gennemgår præcis de trin (P, Q, n og Phi), som du selv kan afprøve i RSA-simulatoren her på siden.
             </div>
         </section>
     </div>
@@ -300,7 +329,6 @@
         document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active-rsa', 'active-theory', 'active-caesar', 'active-video'));
         document.getElementById(name + 'Content').classList.add('active');
         
-        // Finder den rigtige knap og tilføjer den korrekte farve-klasse
         let tabId = (name === 'rsa' ? 'tab1' : name === 'theory' ? 'tab2' : name === 'caesar' ? 'tab3' : 'tab4');
         document.getElementById(tabId).classList.add('active-' + name);
     }
